@@ -13,6 +13,7 @@ import {
     createSwitchNavigator
 } from 'react-navigation'
 
+import SelectGame from '../Screens/SelectGame'
 import Home from '../Screens/Home'
 import GameSwitchNavigator from './GameSwitchNavigator'
 import Prepare from '../Screens/Prepare'

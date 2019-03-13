@@ -12,7 +12,6 @@ import {
     Grid
 } from 'react-native-easy-grid'
 
-import { RowContainer } from '../Components/RowContainer'
 import { Items } from '../Components/Items'
 
 export default class Search extends Component {
@@ -32,39 +31,62 @@ export default class Search extends Component {
             let col = this.props.screenProps.onClick(settings.Cols)
             if (allItems[row][col] == undefined || allItems[row][col] == null) {
                 allItems[row][col] = correctItems[c]
+                c++
             }
-            c++
         }
         for (let i = 0; i < settings.Rows; i++) {
             for (let j = 0; j < settings.Cols; j++) {
                 if (allItems[i][j] == null) {
-                    const ele = this.props.screenProps.generateItem(1, settings.color, settings.turning, settings.text)
-                    allItems[i][j] = ele
+                    let ele
+                    do {
+                        ele = this.props.screenProps.generateItem(1, settings.color, settings.turning, settings.text)
+                        if (!this.isRepeated(ele[0], allItems)) {
+                            allItems[i][j] = ele[0]
+                        }
+                    } while (!this.isRepeated(ele[0], allItems))
                 }
             }
         }
         return allItems
     }
+    isRepeated = (item, allItems) => {
+        for (let i = 0; i < allItems.length; i++) {
+            for (let j = 0; j < allItems[i].length; j++) {
+                if (allItems[i][j] !== null) {
+                    let exist = allItems[i][j]
+                    if (exist.shape == item.shape && exist.color == item.color && exist.isReverse == item.isReverse && exist.turing == item.turing) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
     _renderRows = () => {
         const allItems = this._shuffleAllItems()
-        let renderElem = allItems.forEach(element => {
-            <View>
-            {element.forEach(ele => {
-                <Text>
-                    asdf
-                </Text>
-            })}
-            </View>
-        });
+        let renderElem = allItems.map(function (element, i) {
+            let ele = element.map(function (item, j) {
+                return (
+                    <Text>{`${item.shape}    `}</Text>
+                )
+            })
+            return (
+                <View 
+                    key={`row-${i}`}
+                    style={{flexDirection: 'row'}}
+                >
+                    {ele}
+                </View>
+            )
+        })
         return renderElem
+        
     }
     render() {
-        const allItems = this._shuffleAllItems()
-        //console.error(allItems)
         return(
-            <Text>
-                asdf
-            </Text>
+            <View>
+                {this._renderRows()}
+            </View>
         )
     }
 }

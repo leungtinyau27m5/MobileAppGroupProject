@@ -103,17 +103,7 @@ export default class Game extends Component {
 
         this._nextGame()
     }
-    componentDidMount() {
-        let bgMusic = new Sound('bg_music.mp3', Sound.MAIN_BUNDLE, (error) => {
-            if (error) {
-                console.log('failed to load the sound', error)
-                return
-            }
-            bgMusic.setVolume(0.8)
-            bgMusic.setNumberOfLoops(-1)
-            //bgMusic.play()
-        }) 
-    }
+
     checkWin = () => {
 
     }

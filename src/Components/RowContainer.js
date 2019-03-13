@@ -17,16 +17,7 @@ export class RowContainer extends Component {
         super()
     }
     _renderCols = () => {
-        const cols = this.props.cols
-        const items = this.props.items
-        let colsContainer = [];
-        for (let i = 0; i < cols; i++) {
-            const item = items[i]
-            colsContainer.push(
 
-            )
-        }
-        return colsContainer
     }
     render() {
         return (

@@ -8,9 +8,12 @@ import {
     TouchableOpacity,
     StyleSheet,
     AsyncStorage,
-
+    SafeAreaView,
 } from 'react-native'
 
+import { 
+    Transitioner 
+} from 'react-navigation'
 import * as Animatable from 'react-native-animatable'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -22,12 +25,9 @@ export default class Home extends Component {
             isChange: false
         }
     }
-
     render() {
         return (
-            <Animatable.View
-                animation={this.state.isChange ? 'fadeOutLeftBig' : ''}
-            >
+            <SafeAreaView>
                 <ImageBackground
                     style={[styles.backgroundImage, {paddingTop: 35}]}
                 >
@@ -125,7 +125,7 @@ export default class Home extends Component {
                         </Animatable.View>
                     </View>
                 </ImageBackground>
-            </Animatable.View>
+            </SafeAreaView>
         )
     }
 }

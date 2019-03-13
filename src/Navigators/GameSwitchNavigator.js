@@ -27,6 +27,8 @@ import {
 
 import SelectGame from '../Screens/SelectGame'
 import MemoryGame from '../Screens/MemoryGame'
+import PuzzleGame from  '../Screens/PuzzleGame'
+import MatchingGame from '../Screens/MatchingGame'
 
 const Stacks = createSwitchNavigator({
     SelectGame: {
@@ -44,6 +46,12 @@ const Stacks = createSwitchNavigator({
                 header: null,
             }
         }
+    },
+    PuzzleGame: {
+        screen: PuzzleGame,
+    },
+    MatchingGame: {
+        screen: MatchingGame
     }
 }, {
     initialRouteName: 'SelectGame',

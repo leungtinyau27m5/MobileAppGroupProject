@@ -68,8 +68,8 @@ const level =
             turning: true,
             text: true,
             color: true,
-            Rows: 11,
-            Cols: 11
+            Rows: 7,
+            Cols: 10
         }
     }
 
@@ -100,6 +100,7 @@ export default class Game extends Component {
         }
 
         this._nextGame = this._nextGame.bind(this)
+        this.generateItemProfile = this.generateItemProfile.bind(this)
 
         this._nextGame()
     }
@@ -111,7 +112,7 @@ export default class Game extends Component {
             }
             bgMusic.setVolume(0.1)
             bgMusic.setNumberOfLoops(-1)
-            //bgMusic.play()
+            bgMusic.play()
         }) 
     }
     checkWin = () => {
