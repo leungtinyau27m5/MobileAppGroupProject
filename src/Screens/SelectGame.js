@@ -26,7 +26,7 @@ export default class SelectGame extends Component {
             }
             bgMusic.setVolume(0.8)
             bgMusic.setNumberOfLoops(-1)
-            bgMusic.play()
+            //bgMusic.play()
         }) 
     }
     render() {

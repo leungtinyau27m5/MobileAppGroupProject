@@ -94,7 +94,7 @@ export default class Game extends Component {
     constructor(props) {
         super()
         this.state = {
-            level: 99,
+            level: 27,
             iconsNumber: 32,
             colorNumber: 10,
         }
@@ -158,7 +158,6 @@ export default class Game extends Component {
         let corrects = []
         corrects = this.generateItemProfile(cn, isColor, isTurning, isText)
         target = corrects
-
     }
     render() {
         const { navigation } = this.props
