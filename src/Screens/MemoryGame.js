@@ -28,8 +28,8 @@ const level =
             turning: false,
             text: false,
             color: true,
-            Rows: 5,
-            Cols: 5,
+            Rows: 4,
+            Cols: 4,
         },
         normal : { //17-25
             number: 2,
@@ -37,7 +37,7 @@ const level =
             text:false,
             color: true,
             Rows: 5,
-            Cols: 5
+            Cols: 4
         },
         hard: { //26-40
             number: 3,
@@ -45,31 +45,31 @@ const level =
             text: false,
             color: true,
             Rows: 5,
-            Cols: 5,
+            Cols: 4,
         },
         crazy: { //41-60
             number: 4,
             turning: true,
             text: false,
             color: true,
-            Rows: 7,
-            Cols: 7
+            Rows: 6,
+            Cols: 4
         },
         insane: { //61-84
             number: 4,
             turning: true,
             text: true,
             color: true,
-            Rows: 8,
-            Cols: 8
+            Rows: 6,
+            Cols: 4
         },
         incredibe: { //84-100
             number: 4,
             turning: true,
             text: true,
             color: true,
-            Rows: 11,
-            Cols: 11
+            Rows: 7,
+            Cols: 4
         }
     }
 
@@ -94,7 +94,7 @@ export default class Game extends Component {
     constructor(props) {
         super()
         this.state = {
-            level: 27,
+            level: 18,
             iconsNumber: 32,
             colorNumber: 10,
         }
@@ -107,8 +107,8 @@ export default class Game extends Component {
     checkWin = () => {
 
     }
-    handleClick = (shape, color, turning, text) => {
-        console.error('byebye')
+    handleClick = (itemid) => {
+        console.error(itemid)
     }
     randomNumber = (max) => {
         return Math.floor((Math.random() * max))

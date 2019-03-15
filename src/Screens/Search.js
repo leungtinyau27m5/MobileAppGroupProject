@@ -4,6 +4,7 @@ import {
     Text,
     Button,
     StyleSheet,
+    SafeAreaView
 } from 'react-native'
 
 import {
@@ -13,6 +14,7 @@ import {
 } from 'react-native-easy-grid'
 
 import { Items } from '../Components/Items'
+import { ItemBox } from '../Components/ItemBox'
 
 export default class Search extends Component {
     constructor(props) {
@@ -26,48 +28,31 @@ export default class Search extends Component {
         let allItems = this.state.allItems
         let renderElem = allItems.map((element, i) => {
             return (
-                <Items
-                    key={`item-${i}`}
-                    turning={element.turning}
-                    isReverse={element.isReverse}
-                    shape={element.shape}
-                    color={element.color}
+                <ItemBox
+                    key={`item-box-${i}`}
+                    item={element}
+                    handleClick={ this.props.screenProps.handleClick }
                 />
             )
         })
-        /*
-        let renderElem = allItems.map((element, i) => {
-            let ele = element.map((item, j) => {
-                return (
-                    <Text>{`${item.shape}    `}</Text>
-                )
-            })
-            return (
-                <View 
-                    key={`row-${i}`}
-                    style={{flexDirection: 'row'}}
-                >
-                    {ele}
-                </View>
-            )
-        })*/
         return renderElem
     }
     render() {
         return(
-            <View
+            <SafeAreaView
                 style={{
+                    flex: 1,
                     flexWrap: 'wrap',
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                     marginRight: 'auto',
                     marginLeft: 'auto',
                     justifyContent: 'center',
-                    padding: 55
+                    backgroundColor: '#E4E4E4'
                 }}
             >
                 {this._renderRows()}
-            </View>
+            </SafeAreaView>
         )
     }
 }

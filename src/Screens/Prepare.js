@@ -22,7 +22,6 @@ export default class Prepare extends Component {
         let rows = settings.Rows
         let cols = settings.Cols
         let allItems = []
-        
         targets.forEach(function(element, index) {
             let detail = {
                 id: `ans-${index}`,
@@ -35,7 +34,7 @@ export default class Prepare extends Component {
             }
             allItems.push(detail)
         });
-        let wrongOptions = this.props.screenProps.generateItem(rows * cols - settings.number, settings.color, settings.turning, settings.text)
+        let wrongOptions = this.props.screenProps.generateItem((rows * cols - settings.number), settings.color, settings.turning, settings.text)
         wrongOptions.forEach(function(element, index) {
             let detail = {
                 id: `oth-${index}`,
@@ -44,11 +43,18 @@ export default class Prepare extends Component {
                 turning: element.turning,
                 isReverse: element.isReverse,
                 text: element.text,
-                isCorrect: false
+                isCorrect: false,
             }
             allItems.push(detail)
         })
 
+        for (let i = 0; i < allItems.length; i++) {
+            let pos = Math.floor(Math.random() * allItems.length)
+            let temp = allItems[pos]
+            allItems[pos] = allItems[i]
+            allItems[i] = temp
+        }
+        
         this.props.navigation.navigate('Search', { 
             allItems: allItems
         })
