@@ -34,7 +34,24 @@ export default class Prepare extends Component {
             }
             allItems.push(detail)
         });
-        let wrongOptions = this.props.screenProps.generateItem((rows * cols - settings.number), settings.color, settings.turning, settings.text)
+        let wrongOptions = []
+        let j = 0
+        do {
+            let temp = this.props.screenProps.generateItem(1, settings.color, settings.turning, settings.text)
+            let isDuplicated = false
+            for (let z = 0; z < targets.length; z++) {
+                if (targets[z].shape == temp.shape && targets[z].color == temp.color) {
+                    isDuplicated = true
+                    return
+                }
+            }
+            if (!isDuplicated) {
+                wrongOptions.push(temp[0])
+                j = j + 1
+            }
+        } while(j <= rows * cols - settings.number)
+        //console.error(wrongOptions)
+        //wrongOptions = this.props.screenProps.generateItem((rows * cols - settings.number), settings.color, settings.turning, settings.text)
         wrongOptions.forEach(function(element, index) {
             let detail = {
                 id: `oth-${index}`,
@@ -76,11 +93,10 @@ export default class Prepare extends Component {
         return containers
     }
     render() {
-        //console.error(this.props.screenProps[0])
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: '#E8E8F2' }}>
                 <View style={ styles.topTextContainer }>
-                    <Text style={ styles.textBig }>Level { this.props.screenProps.levelSettings.number }</Text>
+                    <Text style={ styles.textBig }>Level { this.props.screenProps.level }</Text>
                     <Text style={ styles.textMid }>Memoerize Time !</Text>
                 </View>
                 <View style={ styles.hintsContainer }>

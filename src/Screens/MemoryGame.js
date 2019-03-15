@@ -87,28 +87,86 @@ const SwitchScreens = createSwitchNavigator({
 
 
 let target = []
-let others = []
 let lv = null
 export default class Game extends Component {
     static router = SwitchScreens.router
     constructor(props) {
         super()
         this.state = {
-            level: 18,
+            level: 1,
             iconsNumber: 32,
             colorNumber: 10,
+            requiredRight: 1,
+            numberOfRight: 0,
+            navigation: null,
+            screenProps: null
         }
 
-        this._nextGame = this._nextGame.bind(this)
-
-        this._nextGame()
+        this.initialGame()
     }
 
     checkWin = () => {
 
     }
-    handleClick = (itemid) => {
-        console.error(itemid)
+    nextGame = () => {
+        let currentLevel = this.state.level
+        if (currentLevel + 1 > 100) return
+        currentLevel = currentLevel + 1
+        target = []
+    
+        if (currentLevel < 6) {//relax shape only 1, 3x3
+            lv = level.relax
+        } else if (currentLevel < 17) {//easy color 2, 5x5
+            lv = level.easy
+        } else if (currentLevel < 26) {//normal color turning 2, 5x5
+            lv = level.normal
+        } else if (currentLevel < 41) {//hard color turning  3, 5x5
+            lv = level.hard
+        } else if (currentLevel < 61) {//crazy color turning 4, 8x8
+            lv = level.crazy
+        } else if (currentLevel < 83) {//insane color turning text 4 8x8
+            lv = level.insane
+        } else {//incredibe 4 11x11
+            lv = level.incredibe
+        }
+        this.setState((prevState) => ({
+            level: prevState.level + 1,
+            numberOfRight: 0,
+            requiredRight: lv.number
+        }))
+
+        const cn = lv.number
+        const isColor = lv.color, isTurning = lv.turning, isText = lv.text
+        let corrects = []
+        corrects = this.generateItemProfile(cn, isColor, isTurning, isText)
+        target = corrects   
+
+        const screenProps = {
+            target: target,
+            levelSettings: lv,
+            level: currentLevel,
+            onClick: this.randomNumber,
+            handleClick: this.handleClick,
+            generateItem: this.generateItemProfile,
+        }
+        this.props.navigation.navigate('Prepare', {
+            screenProps: screenProps
+        })
+    }
+    handleClick = (isRight) => {
+        if (!isRight) return
+        
+        let right = this.state.numberOfRight
+        right = right + 1
+        this.setState({
+            numberOfRight: right
+        }, () => this.checkDone())
+    }
+    checkDone = () => {
+        console.log('                                     required                   ' + this.state.requiredRight)
+        console.log('                                     answered                   ' + this.state.numberOfRight)
+        if (this.state.numberOfRight == this.state.requiredRight)
+            this.nextGame()
     }
     randomNumber = (max) => {
         return Math.floor((Math.random() * max))
@@ -131,38 +189,22 @@ export default class Game extends Component {
         }
         return items
     }
-    _nextGame() {
-        const currentLevel = this.state.level
-        target = []
-        others = []
+    initialGame = () => {
         lv = level.relax
-        if (currentLevel < 6) {//relax shape only 1, 3x3
-            lv = level.relax
-        } else if (currentLevel < 17) {//easy color 2, 5x5
-            lv = level.easy
-        } else if (currentLevel < 26) {//normal color turning 2, 5x5
-            lv = level.normal
-        } else if (currentLevel < 41) {//hard color turning  3, 5x5
-            lv = level.hard
-        } else if (currentLevel < 61) {//crazy color turning 4, 8x8
-            lv = level.crazy
-        } else if (currentLevel < 83) {//insane color turning text 4 8x8
-            lv = level.insane
-        } else {//incredibe 4 11x11
-            lv = level.incredibe
-        }
-
         const cn = lv.number
         const isColor = lv.color, isTurning = lv.turning, isText = lv.text
-
         let corrects = []
         corrects = this.generateItemProfile(cn, isColor, isTurning, isText)
-        target = corrects
+        target = corrects        
+    }
+    renderSwitchScreens = () => {
+        
     }
     render() {
         const { navigation } = this.props
         const screenProps = {
             target: target,
+            level: this.state.level,
             levelSettings: lv,
             onClick: this.randomNumber,
             handleClick: this.handleClick,

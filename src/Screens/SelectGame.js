@@ -73,8 +73,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#AADAFF',
         paddingTop: 35,
-        paddingLeft: 25,
-        paddingRight: 25
+        alignItems: 'center'
     },
     container: {
         width: 170,

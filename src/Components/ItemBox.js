@@ -27,6 +27,7 @@ export class ItemBox extends Component {
                 isAnswered: true,
                 isRight: true
             })
+            this.props.handleClick(true)
         } else {
             const DURATION = 2200;
             const PATTERN = [0, 2000, 0]
@@ -35,6 +36,7 @@ export class ItemBox extends Component {
                 isAnswered: true,
                 isRight: false
             })
+            this.props.lifeChange()
         }
     }
     render() {
@@ -61,8 +63,8 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         marginTop: 15,
-        marginRight: 15,
-        marginLeft: 15,
+        marginRight: 8,
+        marginLeft: 8,
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
