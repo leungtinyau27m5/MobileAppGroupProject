@@ -3,7 +3,8 @@ import {
   Platform, 
   StyleSheet, 
   Text, 
-  View
+  View,
+  AppState
 } from 'react-native';
 
 import {
@@ -15,6 +16,9 @@ import MyStackNavigator from './Navigators/StackNavigator'
 const AppContainer = createAppContainer(MyStackNavigator);
 
 export default class App extends Component {
+  constructor(props) {
+    super()
+  }
   render() {
     return (
       <AppContainer />

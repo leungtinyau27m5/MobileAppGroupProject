@@ -22,7 +22,26 @@ export default class Home extends Component {
     constructor(props) {
         super()
         this.state = {
-            isChange: false
+            isChange: false,
+            wantAnimation: true
+        }
+        this._getData()
+    }
+    _getData = async () => {
+        try {
+            const value = await AsyncStorage.getItem('PlayHomeAnima')
+            if (value == null || value == '1') {
+                this.setState({
+                    wantAnimation: true
+                })
+            } else {
+                this.setState({
+                    wantAnimation: false
+                })
+            }
+
+        } catch (e) {
+            console.log(e)
         }
     }
     render() {
@@ -33,7 +52,7 @@ export default class Home extends Component {
                 >
                     <Animatable.View
                         style={[styles.topGameIcon, {flex: 1}]}
-                        animation={animationType}
+                        animation={this.state.wantAnimation ? animationType : ''}
                         delay={500}
                     >
                         <Text style={styles.gameTitle}>
@@ -47,7 +66,7 @@ export default class Home extends Component {
                                 right: 14,
                                 top: -210,
                             }}
-                            animation={animationType}
+                            animation={this.state.wantAnimation ? animationType : ''}
                             delay={1000}
                         >
                             <Image
@@ -63,7 +82,7 @@ export default class Home extends Component {
                                 left: 12,
                                 top: 12
                             }}
-                            animation={animationType}
+                            animation={this.state.wantAnimation ? animationType : ''}
                             delay={1500}
                         >
                             <Image
@@ -79,7 +98,7 @@ export default class Home extends Component {
                                 right: 8,
                                 bottom: 120,
                             }}
-                            animation={animationType}
+                            animation={this.state.wantAnimation ? animationType : ''}
                             delay={2000}
                         >
                             <Image
@@ -95,7 +114,7 @@ export default class Home extends Component {
                                 left: 21,
                                 bottom: 25,
                             }}
-                            animation={animationType}
+                            animation={this.state.wantAnimation ? animationType : ''}
                             delay={2500}
                         >
                             <Image
@@ -104,7 +123,7 @@ export default class Home extends Component {
                         </Animatable.View>
                         <Animatable.View 
                             style={styles.buttonsContainer}
-                            animation={animationType}
+                            animation={this.state.wantAnimation ? animationType : ''}
                             delay={3000}
                         >
                             <TouchableOpacity
@@ -117,6 +136,7 @@ export default class Home extends Component {
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.touchableButton,styles.settingButton]}
+                                onPress={() => this.props.navigation.navigate('Settings')}
                             >
                                 <Text style={[styles.buttonText]}>
                                     Settings

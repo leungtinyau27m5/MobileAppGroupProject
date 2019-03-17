@@ -7,9 +7,6 @@ import {
 
 import { createSwitchNavigator } from 'react-navigation'
 
-import Sound from 'react-native-sound'
-Sound.setCategory('Playback')
-
 import Prepare from './Prepare'
 import Search from './Search'
 

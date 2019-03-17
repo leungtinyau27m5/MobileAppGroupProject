@@ -17,6 +17,7 @@ import SelectGame from '../Screens/SelectGame'
 import Home from '../Screens/Home'
 import GameSwitchNavigator from './GameSwitchNavigator'
 import Prepare from '../Screens/Prepare'
+import Settings from '../Screens/Settings'
 
 const Stacks = createSwitchNavigator({
     Home: {
@@ -26,6 +27,9 @@ const Stacks = createSwitchNavigator({
                 header: null,
             }
         }
+    },
+    Settings: {
+        screen: Settings
     },
     GameSwitch: {
         screen: GameSwitchNavigator,

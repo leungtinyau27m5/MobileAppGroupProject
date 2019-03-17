@@ -8,28 +8,30 @@ import {
     StyleSheet,
     SafeAreaView,
     TouchableOpacity,
+    AppState
 } from 'react-native'
+
 
 import Sound from 'react-native-sound'
 Sound.setCategory('Playback')
+
+const music = {
+    bgMusic: new Sound('bg_music.mp3', Sound.MAIN_BUNDLE)
+}
 
 import GameSelection from '../Components/GameSelection'
 export default class SelectGame extends Component {
     constructor(props) {
         super()
+        this.state = {
+            appState: AppState.currentState
+        }
     }
-    componentDidMount() {
-        let bgMusic = new Sound('bg_music.mp3', Sound.MAIN_BUNDLE, (error) => {
-            if (error) {
-                console.log('failed to load the sound', error)
-                return
-            }
-            bgMusic.setVolume(0.8)
-            bgMusic.setNumberOfLoops(-1)
-            //bgMusic.play()
-        }) 
+    _handleAppstateChange = (nextAppState) => {
+
     }
     render() {
+        music.bgMusic.play()
         return (
             <SafeAreaView style={styles.backgroundContainer}>
                 <Text style={{
