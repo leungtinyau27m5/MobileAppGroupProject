@@ -40,6 +40,7 @@ export default class Settings extends Component {
                     <Text>Animation in Home Page ?</Text>
                 </TouchableOpacity>
                 <Button
+                    style={styles.button}
                     title="back to Home Page"
                     onPress={() => this.props.navigation.navigate('Home')}
                 ></Button>
@@ -48,6 +49,9 @@ export default class Settings extends Component {
     }
 }
 const styles = StyleSheet.create({
+    button: {
+        width: 250
+    },
     enable: {
         backgroundColor: '#22FF22'
     },
