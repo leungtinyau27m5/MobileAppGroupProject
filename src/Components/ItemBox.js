@@ -30,7 +30,7 @@ export class ItemBox extends Component {
             this.props.handleClick(true)
         } else {
             const DURATION = 2200;
-            const PATTERN = [0, 2000, 0]
+            const PATTERN = [0, 500, 0]
             Vibration.vibrate(DURATION)
             this.setState({
                 isAnswered: true,

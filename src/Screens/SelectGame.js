@@ -24,14 +24,47 @@ export default class SelectGame extends Component {
     constructor(props) {
         super()
         this.state = {
-            appState: AppState.currentState
+            userPreferences: {
+                SoundVolume: null,
+                EnableBackgroundMusic: null,
+                PlayHomeAnima: null
+            }
         }
+        this._loadUserPreferences = this._loadUserPreferences.bind()
+        this._loadUserPreferences()
     }
-    _handleAppstateChange = (nextAppState) => {
-
+    _loadUserPreferences = async () => {
+        let SoundVolume = await AsyncStorage.getItem('SoundVolume')
+        let EnableBackgroundMusic = await AsyncStorage.getItem('EnableBackgroundMusic')
+        let PlayHomeAnima = await AsyncStorage.getItem('PlayHomeAnima')
+        if (SoundVolume == null) {
+            SoundVolume = 0.8
+        } else {
+            SoundVolume = parseFloat(SoundVolume)
+        }
+        if (EnableBackgroundMusic == null) {
+            EnableBackgroundMusic = '1'
+        } 
+        if (PlayHomeAnima == null) {
+            PlayHomeAnima = '1'
+        }
+        this.setState({
+            userPreferences: {
+                SoundVolume: SoundVolume,
+                EnableBackgroundMusic: EnableBackgroundMusic,
+                PlayHomeAnima: PlayHomeAnima
+            }
+        }, () => {
+            if (EnableBackgroundMusic == '0') return
+            music.bgMusic.setVolume(parseFloat(SoundVolume))
+            music.bgMusic.play()
+        })
+    }
+    changeScene = () => {
+        music.bgMusic.stop()
+        this.props.navigation.navigate('Home')
     }
     render() {
-        music.bgMusic.play()
         return (
             <SafeAreaView style={styles.backgroundContainer}>
                 <Text style={{
@@ -65,6 +98,12 @@ export default class SelectGame extends Component {
                         destination='MatchingGame'
                     />
                 </View>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => this.changeScene()}
+                >
+                    <Text style={styles.buttonText}> BACK TO HOME PAGE</Text>
+                </TouchableOpacity>
             </SafeAreaView>
         )
     }
@@ -101,5 +140,28 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
         marginRight: 'auto',
         marginTop: 10,
-    }
+    },
+    button: {
+        backgroundColor: '#007ACC',
+        marginTop: 25,
+        width: 180,
+        height: 55,
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: '#FFFFFF',
+        borderRadius: 5,
+        shadowColor: '#444444',
+        shadowOffset: {
+            width: 1,
+            height: -1
+        },
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 'auto',
+        marginRight: 'auto'
+    },
+    buttonText: {
+        fontSize: 15,
+        color: '#FFFFFF'
+    },
 })

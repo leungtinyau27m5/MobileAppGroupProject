@@ -4,7 +4,8 @@ import {
   StyleSheet, 
   Text, 
   View,
-  AppState
+  AppState,
+  AsyncStorage
 } from 'react-native';
 
 import {
