@@ -34,10 +34,10 @@ export default class Settings extends Component {
                     Settings Page
                 </Text>
                 <TouchableOpacity 
-                    style={this.state.playHomeAnima == '1' ? styles.disable : styles.enable}
+                    style={[this.state.playHomeAnima == '1' ? styles.enable : styles.disable, styles.button]}
                     onPress={() => this._disableAnimation()}
                 >
-                    <Text>Animation in Home Page ?</Text>
+                    <Text style={styles.buttonText}>Animation in Home Page ?</Text>
                 </TouchableOpacity>
                 <Button
                     style={styles.button}
@@ -50,7 +50,13 @@ export default class Settings extends Component {
 }
 const styles = StyleSheet.create({
     button: {
-        width: 250
+        width: 250,
+        marginRight: 'auto',
+        marginLeft: 'auto',
+        height: 85,
+    },
+    buttonText: {
+        fontSize: 25
     },
     enable: {
         backgroundColor: '#22FF22'
