@@ -5,6 +5,7 @@ import {
     Button,
     SafeAreaView,
     StyleSheet,
+    AppState
 } from 'react-native'
 
 import { Col, Row, Grid } from 'react-native-easy-grid'
@@ -15,6 +16,12 @@ import { TimerCountDown } from '../Components/Timer'
 export default class Prepare extends Component {
     constructor(props) {
         super()
+    }
+    componentDidMount() {
+        AppState.addEventListener('change', this.props.screenProps.handleAppStateChange);
+    }
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange);
     }
     navigateToSearchScene = () => {
         let targets = this.props.screenProps.target
@@ -50,8 +57,6 @@ export default class Prepare extends Component {
                 j = j + 1
             }
         } while(j <= rows * cols - settings.number)
-        //console.error(wrongOptions)
-        //wrongOptions = this.props.screenProps.generateItem((rows * cols - settings.number), settings.color, settings.turning, settings.text)
         wrongOptions.forEach(function(element, index) {
             let detail = {
                 id: `oth-${index}`,
@@ -105,6 +110,7 @@ export default class Prepare extends Component {
                 <View style={ styles.counterContainer }>
                     <TimerCountDown 
                         switchToSearch={ this.navigateToSearchScene }
+                        addTotalTimePlayed={ this.props.screenProps.addTotalTimePlayed }
                     />
                 </View>
             </SafeAreaView>

@@ -1,11 +1,6 @@
 import React, { Component } from 'react'
-import {
-    View,
-    Text,
-    Button
-} from 'react-native'
-
 import { createSwitchNavigator } from 'react-navigation'
+import { Text } from 'react-native'
 
 import Prepare from './Prepare'
 import Search from './Search'
@@ -96,14 +91,32 @@ export default class Game extends Component {
             requiredRight: 1,
             numberOfRight: 0,
             navigation: null,
-            screenProps: null
+            screenProps: null,
+            totalTimePlayed: 0,
         }
 
         this.initialGame()
     }
+    componentDidMount() {
 
-    checkWin = () => {
+    }
+    componentDidUpdate(){
 
+    }
+    setTotalTimePlayed = (count) => {
+        this.setState((prevState) => ({
+            totalTimePlayed: prevState.totalTimePlayed + count
+        }))
+    }
+    showPlayedTime = () => {
+        let total = this.state.totalTimePlayed
+        let hour = Math.floor(this.state.totalTimePlayed / (60 * 60))
+        total = total % (60 * 60)
+        let mintues = Math.floor(total / 60)
+        total = total % 60
+        let sec = total
+        const timeUsed = `${hour} : ${mintues} : ${sec}`
+        return timeUsed
     }
     nextGame = () => {
         let currentLevel = this.state.level
@@ -160,10 +173,9 @@ export default class Game extends Component {
         }, () => this.checkDone())
     }
     checkDone = () => {
-        console.log('                                     required                   ' + this.state.requiredRight)
-        console.log('                                     answered                   ' + this.state.numberOfRight)
-        if (this.state.numberOfRight == this.state.requiredRight)
+        if (this.state.numberOfRight == this.state.requiredRight) {
             this.nextGame()
+        }
     }
     randomNumber = (max) => {
         return Math.floor((Math.random() * max))
@@ -198,6 +210,7 @@ export default class Game extends Component {
         
     }
     render() {
+        //console.error(this.props.navigation.state.params.handleAppStateChange)
         const { navigation } = this.props
         const screenProps = {
             target: target,
@@ -206,6 +219,9 @@ export default class Game extends Component {
             onClick: this.randomNumber,
             handleClick: this.handleClick,
             generateItem: this.generateItemProfile,
+            addTotalTimePlayed: this.setTotalTimePlayed,
+            showPlayedTime: this.showPlayedTime,
+            handleAppStateChange: navigation.state.params.handleAppStateChange
         }
         return (
             <SwitchScreens

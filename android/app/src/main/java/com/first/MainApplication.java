@@ -11,6 +11,8 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.ocetnik.timer.BackgroundTimerPackage;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +32,8 @@ public class MainApplication extends Application implements ReactApplication {
             new SoundModulePackage(),
             new VectorIconsPackage(),
             new RNSoundPackage(),
-            new RNGestureHandlerPackage()
+            new RNGestureHandlerPackage(),
+            new BackgroundTimerPackage()
       );
     }
 

@@ -27,12 +27,28 @@ export default class SelectGame extends Component {
             userPreferences: {
                 SoundVolume: null,
                 EnableBackgroundMusic: null,
-                PlayHomeAnima: null
+                PlayHomeAnima: null,
+                appState: AppState.currentState,
             }
         }
         this._loadUserPreferences = this._loadUserPreferences.bind()
         this._loadUserPreferences()
     }
+    componentDidMount() {
+        AppState.addEventListener('change', this.handleAppStateChange);
+    }
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this.handleAppStateChange);
+    }
+    handleAppStateChange = (nextAppState) => {
+        if (nextAppState === 'active') {
+            music.bgMusic.play()
+        } else {
+            music.bgMusic.stop()
+            //console.log('                now                     ' + nextAppState)
+        }
+        //this.setState({appState: nextAppState});
+      };
     _loadUserPreferences = async () => {
         let SoundVolume = await AsyncStorage.getItem('SoundVolume')
         let EnableBackgroundMusic = await AsyncStorage.getItem('EnableBackgroundMusic')
@@ -82,12 +98,14 @@ export default class SelectGame extends Component {
                         gameName='Memory'
                         navigation={this.props.navigation}
                         destination='MemoryGame'
+                        handleAppStateChange={this.handleAppStateChange}
                     />
                     <GameSelection
                         imageUrl={require('../assets/img/brain-pink.png')}
                         gameName='Puzzle'
                         navigation={this.props.navigation}
                         destination='PuzzleGame'
+                        handleAppStateChange={this.handleAppStateChange}
                     />
                 </View>
                 <View style={{flexDirection: 'row', marginTop: 25, alignItems: 'center'}}>
@@ -96,6 +114,7 @@ export default class SelectGame extends Component {
                         gameName='Matching'
                         navigation={this.props.navigation}
                         destination='MatchingGame'
+                        handleAppStateChange={this.handleAppStateChange}
                     />
                 </View>
                 <TouchableOpacity

@@ -7,10 +7,13 @@ import {
     SafeAreaView,
     ScrollView,
     Alert,
-    TouchableHighlight
+    TouchableHighlight,
+    AsyncStorage,
+    AppState
 } from 'react-native'
 
 import Modal from 'react-native-modal'
+import BackgroundTimer from 'react-native-background-timer'
 
 import { Items } from '../Components/Items'
 import { ItemBox } from '../Components/ItemBox'
@@ -22,9 +25,58 @@ export default class Search extends Component {
             allItems: props.navigation.state.params.allItems,
             life: 5,
             gameOver: false,
-            modalGameOver: false
+            modalGameOver: false,
+            counting: 90
         }
         this._renderRows = this._renderRows.bind(this)
+    }
+    componentDidMount() {
+        AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
+        this.intervalId = BackgroundTimer.setInterval(
+            () => this.setState((prevState) => ({
+                counting: prevState.counting - 1,
+            })
+        ), 1000)
+    }
+    componentDidUpdate(){
+        if (this.state.counting === 0) {
+            BackgroundTimer.clearInterval(this.intervalId)
+            this.timeOver()
+        }
+    }
+    timeOver = () => {
+        if (this.state.counting === 0) {
+            this.setState({
+                gameOver: true,
+                modalGameOver: true,
+                counting: -1
+            })
+        }
+    }
+    componentWillUnmount = async() => {
+        AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange);
+        BackgroundTimer.clearInterval(this.intervalId)
+        this.props.screenProps.addTotalTimePlayed(90 - this.state.counting)
+
+        let value = await AsyncStorage.getItem('gameRecord')
+        let records;
+        if (value !== null)
+            records = JSON.parse(value)
+        let today = new Date()
+        //console.error(records)
+        let dd = String(today.getDate()).padStart(2, '0')
+        let mm = String(today.getMonth() + 1).padStart(2, '0')
+        let yyyy = today.getFullYear()
+        const time = this.props.screenProps.showPlayedTime()
+        today = `${yyyy}/${mm}/${dd}`
+        const thisRecord = {
+            date: today,
+            time: time
+        }
+        if (records == null)
+            records = []
+        records.push(thisRecord)
+        AsyncStorage.setItem('gameRecord', JSON.stringify(records))
     }
     lifeChange = () => {
         this.setState((prevState, props) => ({
@@ -36,6 +88,7 @@ export default class Search extends Component {
                 modalGameOver: true
             })
         }
+        this.props.screenProps.addTotalTimePlayed(90 - this.state.counting)
     }
     _renderRows = () => {
         let allItems = this.state.allItems
@@ -74,7 +127,7 @@ export default class Search extends Component {
         }
         return lifeItems
     }
-    _closeModal(isVisible) {
+    _closeModal = async (isVisible) => {
         this.setState({
             modalGameOver: isVisible
         })
@@ -89,6 +142,7 @@ export default class Search extends Component {
                 >
                     <View style={styles.modalContainer}>
                         <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Lose the Game!</Text>
+                        <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Record is :</Text><Text style={{color: '#FFFFFF', fontSize: 28}}>{this.props.screenProps.showPlayedTime()}</Text>
                         <TouchableHighlight
                             style={{
                                 marginTop: 15
@@ -109,6 +163,7 @@ export default class Search extends Component {
                     flexDirection: 'row'
                 }}>
                     {this._renderLife()}
+                    <Text style={{justifyContent: 'center', fontSize: 35, marginLeft: 5}}>{this.state.counting}</Text>
                 </View>
                 <View
                     style={{

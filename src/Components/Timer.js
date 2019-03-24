@@ -5,9 +5,10 @@ import {
     Button,
     StyleSheet,
     TouchableOpacity,
+    AppState
 } from 'react-native'
-
 import * as Animatable from 'react-native-animatable'
+import BackgroundTimer from 'react-native-background-timer'
 
 export class TimerCountDown extends Component {
     constructor(props) {
@@ -15,11 +16,15 @@ export class TimerCountDown extends Component {
         this.state = {
             isStarted: false,
             counting: 30,
-            deduct: 0
+            deduct: 0,
+            appState: AppState.currentState
         }
     }
+    _handleAppStateChange = (nextAppState) => {
+
+    }
     componentDidMount() {
-        this.interval = setInterval(
+        this.intervalId = BackgroundTimer.setInterval(
             () => this.setState((prevState) => ({
                 counting: prevState.counting - 1,
                 deduct: prevState.deduct + 1
@@ -28,12 +33,14 @@ export class TimerCountDown extends Component {
     }
     componentDidUpdate(){
         if (this.state.counting === 0) {
-            clearInterval(this.interval)
+            this.props.addTotalTimePlayed(30 - this.state.counting)
+            BackgroundTimer.clearInterval(this.intervalId)
             this.props.switchToSearch()
         }
     }
     componentWillUnmount() {
-        clearInterval(this.interval)
+        this.props.addTotalTimePlayed(30 - this.state.counting)
+        BackgroundTimer.clearInterval(this.intervalId)
     }
     render() {
         return (

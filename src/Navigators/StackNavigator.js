@@ -3,7 +3,8 @@ import {
     Text,
     View,
     Button,
-    AsyncStorage
+    AsyncStorage,
+    ActivityIndicator
 } from 'react-native'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -35,7 +36,6 @@ const Stacks = createSwitchNavigator({
         screen: GameSwitchNavigator,
     }
 }, {
-    initialRouteName: 'Home',
     defaultNavigationOptions: {
        header: null,
     }
@@ -49,8 +49,13 @@ export default class MyStackNavigator extends Component {
     
     render() {
         const { navigation } = this.props
+        const navigationPersistenceKey = __DEV__ ? "NavigationStateDEV" : null;
         return (
-            <Stacks navigation={ navigation } />
+            <Stacks 
+                navigation={ navigation } 
+                persistenceKey={navigationPersistenceKey}
+                renderLoadingExperimental={() => <ActivityIndicator />}
+            />
         )
     }
 }
