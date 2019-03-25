@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     ScrollView,
     Alert,
+    Image,
     TouchableHighlight,
     AsyncStorage,
     AppState
@@ -142,6 +143,11 @@ export default class Search extends Component {
                 >
                     <View style={styles.modalContainer}>
                         <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Lose the Game!</Text>
+                        <Image
+                            source={require('../assets/img/giphy.gif')}
+                            resizeMode='cover'
+                            style={{width: 180, height: 130}}
+                        />
                         <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Record is :</Text><Text style={{color: '#FFFFFF', fontSize: 28}}>{this.props.screenProps.showPlayedTime()}</Text>
                         <TouchableHighlight
                             style={{
