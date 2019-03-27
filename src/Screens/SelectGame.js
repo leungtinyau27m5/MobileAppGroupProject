@@ -18,7 +18,7 @@ Sound.setCategory('Playback')
 const music = {
     bgMusic: new Sound('bg_music.mp3', Sound.MAIN_BUNDLE)
 }
-
+music.bgMusic.setNumberOfLoops(-1)
 import GameSelection from '../Components/GameSelection'
 export default class SelectGame extends Component {
     constructor(props) {
