@@ -8,7 +8,9 @@ import {
     StyleSheet,
     SafeAreaView,
     TouchableOpacity,
-    AppState
+    AppState,
+    BackHandler,
+    ToastAndroid
 } from 'react-native'
 
 
@@ -45,9 +47,7 @@ export default class SelectGame extends Component {
             music.bgMusic.play()
         } else {
             music.bgMusic.stop()
-            //console.log('                now                     ' + nextAppState)
         }
-        //this.setState({appState: nextAppState});
       };
     _loadUserPreferences = async () => {
         let SoundVolume = await AsyncStorage.getItem('SoundVolume')

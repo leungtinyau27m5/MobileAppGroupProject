@@ -10,7 +10,8 @@ import {
     Image,
     TouchableHighlight,
     AsyncStorage,
-    AppState
+    AppState,
+    BackHandler
 } from 'react-native'
 
 import Modal from 'react-native-modal'

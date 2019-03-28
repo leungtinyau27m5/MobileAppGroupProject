@@ -8,7 +8,8 @@ import {
     AsyncStorage,
     TouchableOpacity,
     ScrollView,
-    ToastAndroid
+    ToastAndroid,
+    BackHandler
 } from 'react-native'
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -30,6 +31,12 @@ export default class Settings extends Component {
             PlayHomeAnima: null
         }
         this._initialize()
+    }
+    componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.androidBackHandler('Home'))
+    }
+    componentWillUnmount() {
+        BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.androidBackHandler('Home'))
     }
     _initialize = async() => {
         let soundValue = await AsyncStorage.getItem('SoundVolume')  

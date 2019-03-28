@@ -5,7 +5,8 @@ import {
     Button,
     SafeAreaView,
     StyleSheet,
-    AppState
+    AppState,
+    BackHandler
 } from 'react-native'
 
 import { Col, Row, Grid } from 'react-native-easy-grid'
@@ -19,9 +20,15 @@ export default class Prepare extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange);
+        BackHandler.addEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
     }
     componentWillUnmount() {
         AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange);
+        BackHandler.removeEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
+    }
+    backButtonPress = (route) => {
+        this.props.navigation.navigate(route)
+        return true
     }
     navigateToSearchScene = () => {
         let targets = this.props.screenProps.target
@@ -98,6 +105,7 @@ export default class Prepare extends Component {
         return containers
     }
     render() {
+        //console.error(this.props.screenProps.androidBackHandler)
         return (
             <SafeAreaView style={{ flex: 1, backgroundColor: '#E8E8F2' }}>
                 <View style={ styles.topTextContainer }>
@@ -117,17 +125,6 @@ export default class Prepare extends Component {
         )
     }
 }
-/*
-
-                    <Items
-                        name={ 2 } 
-                        size={ 24 }
-                        turning={ true }
-                        isReverse={ false }
-                        color={ 2 }
-                    />
-
-*/
 const styles = StyleSheet.create({
     topTextContainer:{
         flex: 1,

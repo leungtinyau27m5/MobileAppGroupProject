@@ -4,7 +4,8 @@ import {
     View,
     Button,
     AsyncStorage,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler,
 } from 'react-native'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -46,13 +47,26 @@ export default class MyStackNavigator extends Component {
     constructor(props) {
         super()
     }
-    
+    componentDidMount() {
+        //BackHandler.addEventListener('hardwareBackPress', () => this.onBackButtonPressAndroid('Home'))
+    }
+    componentWillUnmount() {
+        //BackHandler.addEventListener('hardwareBackPress', () => this.onBackButtonPressAndroid('Home'))
+    }
+    onBackButtonPressAndroid = (route) => {
+        this.props.navigation.navigate(route)
+        return true
+    }
     render() {
         const { navigation } = this.props
+        const screenProps = {
+            androidBackHandler: this.onBackButtonPressAndroid
+        }
         const navigationPersistenceKey = __DEV__ ? "NavigationStateDEV" : null;
         return (
             <Stacks 
                 navigation={ navigation } 
+                screenProps={ screenProps }
                 persistenceKey={navigationPersistenceKey}
                 renderLoadingExperimental={() => <ActivityIndicator />}
             />

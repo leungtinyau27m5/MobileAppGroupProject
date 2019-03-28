@@ -67,6 +67,7 @@ export default class GameSwitchNavigator extends Component {
     }
 
     render() {
+        //console.error(this.props.screenProps.androidBackHandler)
         const { navigation } = this.props
         return (
             <Stacks

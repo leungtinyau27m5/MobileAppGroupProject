@@ -210,7 +210,6 @@ export default class Game extends Component {
         
     }
     render() {
-        //console.error(this.props.navigation.state.params.handleAppStateChange)
         const { navigation } = this.props
         const screenProps = {
             target: target,

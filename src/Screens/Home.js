@@ -9,6 +9,7 @@ import {
     StyleSheet,
     AsyncStorage,
     SafeAreaView,
+    BackHandler
 } from 'react-native'
 
 import { 
@@ -45,6 +46,7 @@ export default class Home extends Component {
         }
     }
     render() {
+        //console.error(this.props.screenProps.androidBackHandler)
         return (
             <SafeAreaView>
                 <ImageBackground
