@@ -30,7 +30,8 @@ export default class PuzzleGame extends Component {
     render() {
         const { navigation } = this.props
         const screenProps = {
-            handleAppStateChange: navigation.state.params.handleAppStateChange
+            handleAppStateChange: navigation.state.params.handleAppStateChange,
+            handleBackButtonPress: navigation.state.params.handleBackButtonPress
         }
         return (
             <SwtichScreens

@@ -8,7 +8,10 @@ import {
     TouchableOpacity,
     StyleSheet,
     Image,
-    TouchableHighlight
+    TouchableHighlight,
+    BackHandler,
+    AsyncStorage,
+    Button
 } from 'react-native'
 import Modal from 'react-native-modal'
 
@@ -23,7 +26,7 @@ const config = {
         width: '33.33%',
         height: width * 0.33,
         fontStyle: {
-            size: 20
+            size: 33
         }
     },
     normal: {
@@ -82,20 +85,97 @@ export default class Puzzling extends Component {
         const { navigation } = props
         const c = navigation.state.params.level == 'easy' ? config.easy : navigation.state.params.level == 'normal' ? config.normal : config.hard
         this.state = {
+            level: navigation.state.params.level,
             config: c,
             currentAvailable: {
                 row: c.boardArray.length - 1,
                 col: c.boardArray[0].length - 1
             },
-            isWin: false
+            isWin: false,
+            steps: 0,
+            isRearranged: false
         }
     }
     componentWillMount() {
-        const rowLength = this.state.config.boardArray.length
-        const colLength = this.state.config.boardArray[0].length
-        const pos = null
-        let board = this.state.config
-        let currentAvailable = this.state.currentAvailable
+        this.initialGame()
+    }
+    componentDidMount() {
+        AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
+        BackHandler.addEventListener('hardwareBackPress', () => {this.saveGame; this.props.screenProps.handleBackButtonPress('SelectGame')})
+    }
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange)
+        BackHandler.removeEventListener('hardwareBackPress', () => {this.saveGame; this.props.screenProps.handleBackButtonPress('SelectGame')})
+
+    }
+    saveGame = async() => {
+        const oldGame = {
+            config: this.state.config,
+            currentAvailable: this.state.currentAvailable,
+            isWin: this.state.isWin,
+            steps: this.state.steps
+        }
+        await AsyncStorage.setItem('oldGame', JSON.stringify(oldGame))
+    }
+    cleanTheCache = async() => {
+        await AsyncStorage.removeItem('oldGame')
+    }
+    checkWin = async() => {
+        let isWin = true
+        let counting = 1
+        const max = this.state.config.boardArray.length * this.state.config.boardArray[0].length -1
+        this.state.config.boardArray.forEach((element, i) => {
+            element.forEach((ele, j) => {
+                if (counting > max) return
+                if (ele !== counting) isWin = false
+                ++counting
+            })
+        })
+        this.saveGame()
+        if (!isWin) return
+        let oldGame = JSON.parse(await AsyncStorage.getItem('oldGame'))
+        oldGame.currentAvailable = this.state.currentAvailable
+        oldGame.isWin = true
+        oldGame.steps = this.state.steps
+        await AsyncStorage.setItem('oldGame', JSON.stringify(oldGame))
+        this.setState({
+            isWin: true
+        })
+    }
+    initialGame = async () => {
+        let rowLength
+        let colLength
+        let board
+        let currentAvailable
+        let steps
+        rowLength = this.state.config.boardArray.length
+        colLength = this.state.config.boardArray[0].length
+        board = this.state.config
+        currentAvailable = this.state.currentAvailable
+        steps = this.state.steps
+        let oldGame = JSON.parse(await AsyncStorage.getItem('oldGame'))
+        if (oldGame && oldGame.isWin == false) {
+            rowLength = oldGame.config.boardArray.length
+            colLength = oldGame.config.boardArray[0].length
+            board = oldGame.config
+            currentAvailable = oldGame.currentAvailable
+            steps = oldGame.steps
+        }
+        for (let i = 0; i < rowLength; i++) {
+            for (let j = 0; j < colLength; j++) {
+                if (board.boardArray[i][j] === '') {
+                    currentAvailable.row = i
+                    currentAvailable.col = j
+                }
+            }
+        }
+        this.setState({
+            config: board,
+            currentAvailable: currentAvailable,
+            isRearranged: true,
+            steps: steps
+        })
+        if (oldGame && oldGame.isWin == false) return
         for (let i = 0; i < rowLength * 5; i++) {
             for (let j = 0;j < colLength * 2; j++) {
                 let method
@@ -141,31 +221,19 @@ export default class Puzzling extends Component {
                 currentAvailable.col = target.col
             }
         }
+        if (!oldGame || oldGame.isWin == true) {
+            const gameObj = {
+                config: board,
+                currentAvailable: currentAvailable,
+                isWin: false,
+                steps: 0
+            }
+            await AsyncStorage.setItem('oldGame', JSON.stringify(gameObj))
+        }
         this.setState({
             config: board,
-            currentAvailable: currentAvailable
-        })
-    }
-    componentDidMount() {
-        AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
-    }
-    componentWillUnmount() {
-        AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
-    }
-    checkWin = () => {
-        let isWin = true
-        let counting = 1
-        const max = this.state.config.boardArray.length * this.state.config.boardArray[0].length -1
-        this.state.config.boardArray.forEach((element, i) => {
-            element.forEach((ele, j) => {
-                if (counting > max) return
-                if (ele !== counting) isWin = false
-                ++counting
-            })
-        })
-        if (!isWin) return
-        this.setState({
-            isWin: true
+            currentAvailable: currentAvailable,
+            isRearranged: true
         })
     }
     changePiece = (pos) => {
@@ -180,17 +248,19 @@ export default class Puzzling extends Component {
         let newBoard = this.state.config
         newBoard.boardArray[currentAvailable.row][currentAvailable.col] = newBoard.boardArray[pos.row][pos.col]
         newBoard.boardArray[pos.row][pos.col] = ''
-        this.setState({
+        this.setState((prevState) => ({
             config: newBoard,
             currentAvailable: {
                 row: pos.row,
                 col: pos.col
-            }
+            },
+            steps: prevState.steps + 1
+        }), () => {
+            this.checkWin()
         })
-        this.checkWin()
     }
     _closeModal = () => {
-        this.props.navigate('SelectGame')
+        this.props.navigation.navigate('SelectGame')
     }
     renderBoardPiece = () => {
         let pieces = [];
@@ -201,21 +271,26 @@ export default class Puzzling extends Component {
                     col: j
                 }
                 pieces.push(
-                    <Piece key={`item-${ele}`} config={this.state.config} number={ele} handleClick={this.changePiece} position={pos}/>
+                    <Piece key={`row-${i}-col-${ele}`} config={this.state.config} number={ele} handleClick={this.changePiece} position={pos}/>
                 )
             })
         })
         return pieces
     }
     render() {
-        //console.error(this.props.navigation.state.params.level)
-        //console.error(this.state.config.boardArray[0][0])
         return (
         <SafeAreaView style={{justifyContent: 'center'}}>
             <View style={{width: '95%', padding: 5, borderColor: '#000', marginLeft: 'auto', marginRight: 'auto', height: '90%', justifyContent: 'center'}}>
-                <View style={{borderColor: '#000', width: '100%', flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row'}}>
+                <View style={{flex: 2, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={{fontSize: 22}}>Steps: {this.state.steps}</Text>
+                </View>
+                <View style={{borderColor: '#000', width: '100%', flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row', flex: 10}}>
                 {this.renderBoardPiece()}
                 </View>
+                <Button
+                title="Clean Cache and Old Game (DEBUG!!)"
+                onPress={() => this.cleanTheCache()}
+                />
             </View>
             <Modal
                 isVisible={this.state.isWin}

@@ -7,6 +7,8 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
+    BackHandler,
+    AsyncStorage
 } from 'react-native'
 import PuzzleMode from '../Components/puzzles/puzzleMode'
 import Modal from 'react-native-modal'
@@ -24,9 +26,11 @@ export default class ChoosePuzzle extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
+        BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('SelectGame'))
     }
     componentWillUnmount() {
-        AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
+        AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange)
+        BackHandler.removeEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('SelectGame'))
     }
     toggleImageModal = () => {
         this.setState((prevState) => ({
@@ -43,7 +47,7 @@ export default class ChoosePuzzle extends Component {
         this.toggleImageModal()
         this.startPuzzling(type)
     }
-    handleNumLevelSelect = (selectedLevel) => {
+    handleNumLevelSelect = async(selectedLevel) => {
         this.toggleNumberModal()
         this.startPuzzling(selectedLevel)
     }
@@ -51,6 +55,7 @@ export default class ChoosePuzzle extends Component {
         this.props.navigation.navigate('Puzzling', {level: content})
     }
     render() {
+        //console.error(this.props.screenProps.handleBackButtonPress)
         return (
             <SafeAreaView>
                 <View style={{

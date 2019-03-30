@@ -16,7 +16,10 @@ export default class GameSelection extends Component {
         return (
             <TouchableOpacity 
                 style={gameStyles.container}
-                onPress={()=>this.props.navigation.navigate(this.props.destination, {handleAppStateChange: this.props.handleAppStateChange})}
+                onPress={()=>this.props.navigation.navigate(this.props.destination, {
+                    handleAppStateChange: this.props.handleAppStateChange, 
+                    handleBackButtonPress: this.props.handleBackButtonPress
+                })}
             >
                 <Image
                     source={this.props.imageUrl}

@@ -9,8 +9,7 @@ import {
     SafeAreaView,
     TouchableOpacity,
     AppState,
-    BackHandler,
-    ToastAndroid
+    BackHandler
 } from 'react-native'
 
 
@@ -38,17 +37,25 @@ export default class SelectGame extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.handleAppStateChange);
+        BackHandler.addEventListener('hardwareBackPress', () => this.handleBackButtonPress('Home'))
     }
     componentWillUnmount() {
         AppState.removeEventListener('change', this.handleAppStateChange);
+        BackHandler.removeEventListener('hardwareBackPress', () => this.handleBackButtonPress('Home'))
+    }
+    handleBackButtonPress = (route) => {
+        this.props.navigation.navigate(route)
+        return true
     }
     handleAppStateChange = (nextAppState) => {
         if (nextAppState === 'active') {
+            if (this.state.userPreferences.EnableBackgroundMusic == '0') return
+            music.bgMusic.setVolume(this.state.userPreferences.SoundVolume)
             music.bgMusic.play()
         } else {
             music.bgMusic.stop()
         }
-      };
+    };
     _loadUserPreferences = async () => {
         let SoundVolume = await AsyncStorage.getItem('SoundVolume')
         let EnableBackgroundMusic = await AsyncStorage.getItem('EnableBackgroundMusic')
@@ -99,6 +106,7 @@ export default class SelectGame extends Component {
                         navigation={this.props.navigation}
                         destination='MemoryGame'
                         handleAppStateChange={this.handleAppStateChange}
+                        handleBackButtonPress={this.handleBackButtonPress}
                     />
                     <GameSelection
                         imageUrl={require('../assets/img/brain-pink.png')}
@@ -106,6 +114,7 @@ export default class SelectGame extends Component {
                         navigation={this.props.navigation}
                         destination='PuzzleGame'
                         handleAppStateChange={this.handleAppStateChange}
+                        handleBackButtonPress={this.handleBackButtonPress}
                     />
                 </View>
                 <View style={{flexDirection: 'row', marginTop: 25, alignItems: 'center'}}>
@@ -115,6 +124,7 @@ export default class SelectGame extends Component {
                         navigation={this.props.navigation}
                         destination='MatchingGame'
                         handleAppStateChange={this.handleAppStateChange}
+                        handleBackButtonPress={this.handleBackButtonPress}
                     />
                 </View>
                 <TouchableOpacity
