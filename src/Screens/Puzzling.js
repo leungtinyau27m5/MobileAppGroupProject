@@ -11,9 +11,12 @@ import {
     TouchableHighlight,
     BackHandler,
     AsyncStorage,
-    Button
+    Button,
+    ToastAndroid
 } from 'react-native'
 import Modal from 'react-native-modal'
+
+import { serverConn } from '../server/config'
 
 const {height, width} = Dimensions.get('window')
 const config = {
@@ -26,7 +29,7 @@ const config = {
         width: '33.33%',
         height: width * 0.33,
         fontStyle: {
-            size: 33
+            size: 20
         }
     },
     normal: {
@@ -101,12 +104,15 @@ export default class Puzzling extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
-        BackHandler.addEventListener('hardwareBackPress', () => {this.saveGame; this.props.screenProps.handleBackButtonPress('SelectGame')})
+        BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
     }
     componentWillUnmount() {
         AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange)
-        BackHandler.removeEventListener('hardwareBackPress', () => {this.saveGame; this.props.screenProps.handleBackButtonPress('SelectGame')})
-
+        BackHandler.removeEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
+    }
+    backToSelectScene() {
+        this.saveGame()
+        this.props.screenProps.handleBackButtonPress('ChoosePuzzle')
     }
     saveGame = async() => {
         const oldGame = {
@@ -115,10 +121,13 @@ export default class Puzzling extends Component {
             isWin: this.state.isWin,
             steps: this.state.steps
         }
-        await AsyncStorage.setItem('oldGame', JSON.stringify(oldGame))
+        let loadTarget = this.state.level == 'easy' ? 'oldGame' : this.state.level == 'normal' ? 'oldGameNormal' : 'oldGameHard'
+        await AsyncStorage.setItem(loadTarget, JSON.stringify(oldGame))
     }
     cleanTheCache = async() => {
         await AsyncStorage.removeItem('oldGame')
+        ToastAndroid.show('Cache and Game Record is Clean', ToastAndroid.SHORT)
+        this.props.navigation.navigate('ChoosePuzzle')
     }
     checkWin = async() => {
         let isWin = true
@@ -133,13 +142,35 @@ export default class Puzzling extends Component {
         })
         this.saveGame()
         if (!isWin) return
-        let oldGame = JSON.parse(await AsyncStorage.getItem('oldGame'))
+        let loadTarget = this.state.level == 'easy' ? 'oldGame' : this.state.level == 'normal' ? 'oldGameNormal' : 'oldGameHard'
+        let oldGame = JSON.parse(await AsyncStorage.getItem(loadTarget))
         oldGame.currentAvailable = this.state.currentAvailable
         oldGame.isWin = true
         oldGame.steps = this.state.steps
-        await AsyncStorage.setItem('oldGame', JSON.stringify(oldGame))
+        await AsyncStorage.setItem(loadTarget, JSON.stringify(oldGame))
+        this.uploadMyGameRecord()
         this.setState({
             isWin: true
+        })
+    }
+    uploadMyGameRecord = () => {
+        const data = {
+            game: 'puzzle',
+            rid: 'c91347b6df21d5d164801258',
+            record: this.state.steps
+        }
+        fetch(serverConn.serverUri, {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function (data) {
+            console.log('Request succeed with JSON response', data)
+        })
+        .catch(function (error) {
+            console.log('Request Failed', error)
         })
     }
     initialGame = async () => {
@@ -153,7 +184,8 @@ export default class Puzzling extends Component {
         board = this.state.config
         currentAvailable = this.state.currentAvailable
         steps = this.state.steps
-        let oldGame = JSON.parse(await AsyncStorage.getItem('oldGame'))
+        let loadTarget = this.state.level == 'easy' ? 'oldGame' : this.state.level == 'normal' ? 'oldGameNormal' : 'oldGameHard'
+        let oldGame = JSON.parse(await AsyncStorage.getItem(loadTarget))
         if (oldGame && oldGame.isWin == false) {
             rowLength = oldGame.config.boardArray.length
             colLength = oldGame.config.boardArray[0].length
@@ -228,7 +260,7 @@ export default class Puzzling extends Component {
                 isWin: false,
                 steps: 0
             }
-            await AsyncStorage.setItem('oldGame', JSON.stringify(gameObj))
+            await AsyncStorage.setItem(loadTarget, JSON.stringify(gameObj))
         }
         this.setState({
             config: board,

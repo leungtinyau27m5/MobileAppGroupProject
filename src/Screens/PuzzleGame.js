@@ -8,6 +8,7 @@ import { createSwitchNavigator } from 'react-navigation'
 
 import Puzzling from './Puzzling'
 import ChoosePuzzle from './ChoosePuzzle'
+import PuzzlingImage from './PuzzlingImage'
 
 const SwtichScreens = createSwitchNavigator({
     ChoosePuzzle: {
@@ -15,6 +16,9 @@ const SwtichScreens = createSwitchNavigator({
     },
     Puzzling: {
         screen: Puzzling
+    },
+    PuzzlingImage: {
+        screen: PuzzlingImage
     }
 }, {
     initialRouteName: 'ChoosePuzzle'

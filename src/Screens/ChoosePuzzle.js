@@ -45,7 +45,10 @@ export default class ChoosePuzzle extends Component {
     }
     handleSelection = (type) => {
         this.toggleImageModal()
-        this.startPuzzling(type)
+        this.startPuzzlingImage()
+    }
+    startPuzzlingImage = () => {
+        this.props.navigation.navigate('PuzzlingImage')
     }
     handleNumLevelSelect = async(selectedLevel) => {
         this.toggleNumberModal()
