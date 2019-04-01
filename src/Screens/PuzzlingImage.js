@@ -8,15 +8,25 @@ import {
     ImageBackground,
     ImageEditor,
     AsyncStorage,
-    Button
+    Button,
 } from 'react-native'
+import ImagePicker from 'react-native-image-picker'
+import ImageCropPicker from 'react-native-image-crop-picker'
 
+const options = {
+    title: 'select avatar',
+    customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+    storageOptions: {
+        skipBackup: true,
+        path: 'images',
+    },
+}
 export default class PuzzlingImage extends Component {
     constructor(props) {
         super()
         this.state = {
             type: null,
-            imageUri: null,
+            image: null,
             currentAvailable: {
                 row: null,
                 col: null,
@@ -26,19 +36,67 @@ export default class PuzzlingImage extends Component {
         }
     }
     componentWillMount() {
-        this.cropImaged()
+        //this.cropImaged()
     }
-    cropImaged = async() => {
+    pickImage = async() => {
+        ImagePicker.showImagePicker(options, (response) => {
+            console.log('Response = ', response)
+
+            if(response.didCancel) {
+
+            } else if(response.error) {
+
+            } else if (response.customButton) {
+                console.log(response.customButton)
+            } else {
+                const source = { uri: response.uri }
+                this.cropImaged(source)
+            }
+        })
+    }
+    cropImaged = async(source) => {
+        /*
+        ImageCropPicker.openCropper({
+            path: source.uri,
+            width: 400,
+            height: 400,
+        }).then(image => {
+            console.log(image.cropRect)
+            this.setState({
+                image: {
+                    uri: image.path
+                }
+            })
+        })*/
+        
         let cropData = {
             offset:{x:0,y:0}, 
             size:{width:20, height:20},
         }
-        await ImageEditor.cropImage(
-            '../assets/img/brain.png',
+        console.log('image conten', source.uri)
+        ImageEditor.cropImage(
+            source.uri,
             cropData,
-            (successURI) => { this.setState({imageUri: successURI}) },
-            (error) => { console.log('cropImage', error)}
+            (croppedImageUri) => {this.setState({image: {uri: croppedImageUri}})},
+            (cropError) => {console.log('crop image error: ', cropError)} 
         )
+        /*
+        let resizeUri = await new Promise((resolve, reject) => {
+            ImageEditor.cropImage(
+                source.uri,
+                cropData,
+                (uri) => resolve(uri),
+                () => reject()
+            )
+        })
+        this.setState({ image: {uri: resizeUri}})*/
+        /*
+        await ImageEditor.cropImage(
+            source.uri,
+            cropData,
+            (successURI) => { this.setState({image: {uri: successURI}}) },
+            (error) => { console.log('cropImage', error)}
+        )*/
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
@@ -49,16 +107,18 @@ export default class PuzzlingImage extends Component {
         BackHandler.removeEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
     }
     render() {
-        return (
+        return (         
             <View>
                 <View style={{width: 267, height: 267}}>
                     <Image
-                        source={{uri: this.state.imageUri}}
+                        source={this.state.image}
+                        style={{ width: 200, height: 200, resizeMode: 'contain'}}
                     />
                     <Text>Coming Soon</Text>
                     <Button
                         title="Back To previous Page"
-                        onPress={()=> this.props.navigation.navigate('SelectGame')}
+                        onPress={() => this.pickImage()}
+                        //onPress={()=> this.props.navigation.navigate('ChoosePuzzle')}
                     />
                 </View>
             </View>
