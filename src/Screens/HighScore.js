@@ -8,6 +8,7 @@ import {
     Dimensions,
     BackHandler
 } from 'react-native'
+import { serverConn } from '../server/config'
 
 class HeadBoard extends Component {
     render() {
@@ -204,6 +205,30 @@ export default class HighScore extends Component {
     backToHomePage = () => {
         this.props.navigation.navigate('Home')
         return true
+    }
+    fetchDataFromServer = () => {
+        const data = {
+            request: 'queryGameRecord'
+        }
+        fetch(serverConn.serverUri, {
+            method: 'POST',
+            header: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then((response) => response.json())
+        .then(responseData => {
+            this._storeData(responseData)
+        })
+        .catch((error) => {
+            console.log("server request Error", error)
+        })
+        .done()
+    }
+    _storeData = (res) => {
+        console.log(res)
     }
     handleOnClickEvent = (g, p) => {
         const screenWidth = Dimensions.get('window').width
