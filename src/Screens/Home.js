@@ -50,8 +50,28 @@ export default class Home extends Component {
         return (
             <SafeAreaView>
                 <ImageBackground
-                    style={[styles.backgroundImage, {paddingTop: 35}]}
+                    style={[styles.backgroundImage, {paddingTop: 0}]}
                 >
+                    <TouchableOpacity
+                        style={[styles.touchableButton, styles.highScoreButton, {
+                            padding: 0,
+                            width: 130,
+                            marginTop: 5,
+                            marginLeft: 5
+                        }]}
+                        onPress={() => this.props.navigation.navigate('HighScore')}
+                    >
+                        <View style={{flexDirection: 'row'}}>
+                            <Ionicons
+                                name="ios-trophy"
+                                size={25}
+                                style={{color: '#FFF', marginRight: 10}}
+                            />
+                            <Text style={{fontSize: 16, color: '#FFF'}}>
+                                High Score
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
                     <Animatable.View
                         style={[styles.topGameIcon, {flex: 1}]}
                         animation={this.state.wantAnimation ? animationType : ''}
@@ -137,7 +157,7 @@ export default class Home extends Component {
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.touchableButton,styles.settingButton]}
+                                style={[styles.touchableButton,styles.settingButton, {}]}
                                 onPress={() => this.props.navigation.navigate('Settings')}
                             >
                                 <Text style={[styles.buttonText]}>
@@ -190,6 +210,9 @@ const styles = StyleSheet.create({
     settingButton: {
         backgroundColor: '#F9A427',
     },
+    highScoreButton: {
+        backgroundColor: '#F8BF00'
+    },
     buttonText: {
         fontSize: 27,
         color: '#FFFFFF',
@@ -201,11 +224,10 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
         marginRight: 'auto',
         alignSelf: 'center',
-        width: '100%',
-        height: '100%',     
     },
     gameTitle: {
-        fontSize: 38
+        fontSize: 38,
+        marginTop: 0
     },  
     hideLayer: {
         backgroundColor: '#FFFFFF',

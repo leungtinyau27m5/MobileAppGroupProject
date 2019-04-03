@@ -69,14 +69,6 @@ export default class ChoosePuzzle extends Component {
                 }}>
                     <View style={{flex: 1, paddingHorizontal: 5, paddingTop: 10, alignItems: 'center', textAlign: 'center', width: '100%'}}>
                         <Text style={{fontSize: 22, color: '#FFF', fontWeight: 'bold'}}>Select Puzzle Mode</Text>
-                        <TouchableOpacity style={[styles.gameSelection, {}]} onPress={() => this.toggleImageModal()}>
-                            <Image
-                                source={require('../assets/img/OOO.gif')}
-                            />
-                            <View style={[styles.touchableButton, {borderColor: '#007ACC', borderWidth: 1}]}>
-                                <Text style={styles.buttonText}>Image Mode</Text>
-                            </View>
-                        </TouchableOpacity>
                         <TouchableOpacity style={[styles.gameSelection, {}]} onPress={() => this.toggleNumberModal()}>
                             <Image
                                 source={require('../assets/img/boom.gif')}
@@ -141,7 +133,6 @@ const styles = StyleSheet.create({
     gameSelection: {
         backgroundColor: '#FFF',
         borderRadius: 35,
-        flex: 1,
         width: '85%',
         alignItems: 'center',
         marginTop: 8,
@@ -170,3 +161,13 @@ const styles = StyleSheet.create({
         fontFamily: 'monospace'
     },
 })
+/*
+                        <TouchableOpacity style={[styles.gameSelection, {}]} onPress={() => this.toggleImageModal()}>
+                            <Image
+                                source={require('../assets/img/OOO.gif')}
+                            />
+                            <View style={[styles.touchableButton, {borderColor: '#007ACC', borderWidth: 1}]}>
+                                <Text style={styles.buttonText}>Image Mode</Text>
+                            </View>
+                        </TouchableOpacity>
+*/

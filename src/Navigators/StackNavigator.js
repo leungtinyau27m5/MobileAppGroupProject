@@ -20,6 +20,7 @@ import Home from '../Screens/Home'
 import GameSwitchNavigator from './GameSwitchNavigator'
 import Prepare from '../Screens/Prepare'
 import Settings from '../Screens/Settings'
+import HighScore from '../Screens/HighScore'
 
 const Stacks = createSwitchNavigator({
     Home: {
@@ -35,6 +36,9 @@ const Stacks = createSwitchNavigator({
     },
     GameSwitch: {
         screen: GameSwitchNavigator,
+    },
+    HighScore: {
+        screen: HighScore
     }
 }, {
     defaultNavigationOptions: {

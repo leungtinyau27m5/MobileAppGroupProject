@@ -117,16 +117,6 @@ export default class SelectGame extends Component {
                         handleBackButtonPress={this.handleBackButtonPress}
                     />
                 </View>
-                <View style={{flexDirection: 'row', marginTop: 25, alignItems: 'center'}}>
-                    <GameSelection
-                        imageUrl={require('../assets/img/brain-orange.png')}
-                        gameName='Matching'
-                        navigation={this.props.navigation}
-                        destination='MatchingGame'
-                        handleAppStateChange={this.handleAppStateChange}
-                        handleBackButtonPress={this.handleBackButtonPress}
-                    />
-                </View>
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => this.changeScene()}
@@ -194,3 +184,16 @@ const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
 })
+
+/*
+                <View style={{flexDirection: 'row', marginTop: 25, alignItems: 'center'}}>
+                    <GameSelection
+                        imageUrl={require('../assets/img/brain-orange.png')}
+                        gameName='Matching'
+                        navigation={this.props.navigation}
+                        destination='MatchingGame'
+                        handleAppStateChange={this.handleAppStateChange}
+                        handleBackButtonPress={this.handleBackButtonPress}
+                    />
+                </View>
+*/
