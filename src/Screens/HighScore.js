@@ -6,9 +6,12 @@ import {
     StyleSheet,
     ScrollView,
     Dimensions,
-    BackHandler
+    BackHandler,
+    PermissionsAndroid,
+    AsyncStorage
 } from 'react-native'
 import { serverConn } from '../server/config'
+import DeviceInfo from 'react-native-device-info'
 
 class HeadBoard extends Component {
     render() {
@@ -77,7 +80,7 @@ class HeadBoard extends Component {
                         onPress={() => this.props.handleOnClickEvent(false, false)}
                     >
                         <Text style={[styles.tabsText, this.props.isGlobal ? {color: '#757575'} : {color: '#FFF'}]}>
-                            Friends
+                            Local
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[ this.props.isGlobal ? styles.categoryBg : {backgroundColor: '#FFF'},
@@ -163,12 +166,14 @@ export default class HighScore extends Component {
     constructor(props) {
         super()
         this.state = {
+            phoneNumber: null,
+            contacts: null,
             category: {
                 isGlobal: false,
                 isPuzzle: false
             },
             data: {
-                friend: {
+                local: {
                     memory: [
                         {rank: 1, username: 'joe', score: '332/111'},
                         {rank: 2, username: 'joe', score: '332/111'},
@@ -198,6 +203,9 @@ export default class HighScore extends Component {
     }
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.backToHomePage)
+        const phoneNumberPermission = this.requestPhoneNumberPermission();
+        const contactPermission = this.requestContactPermission();
+        if (!phoneNumberPermission) this.props.navigation.navigate('Home');
     }
     componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', this.backToHomePage)
@@ -206,9 +214,58 @@ export default class HighScore extends Component {
         this.props.navigation.navigate('Home')
         return true
     }
+    requestContactPermission = async() => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+                {
+                    'title': 'Contacts',
+                    'message': 'View your contact to find your friends here!'
+                }
+            ).then(() => {
+                /*
+                Contacts.getAll((err, contacts) => {
+                    if (err === 'denied') {
+                        return false
+                    } else {
+                        this.setState({ contacts: contacts })
+                        return true
+                    }
+                })*/
+            })
+        } catch (e) {
+            console.warn(err)
+            return false
+        }
+    }
+    requestPhoneNumberPermission = async() => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
+                {
+                    title: 'Your Phone number is needed',
+                    message: 
+                        'We need your phone number to identify yourself',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK'
+                }
+            )
+            if (granted === PermissionsAndroid.RESULTS.Granted) {
+                this.setState({ phoneNumber: DeviceInfo.getPhoneNumber()})
+                return true
+            } else {
+                return false
+            }
+        } catch (err) {
+            console.warn(err)
+            return false
+        }
+    }
     fetchDataFromServer = () => {
         const data = {
-            request: 'queryGameRecord'
+            request: 'queryGameRecord',
+            rid: this.state.phoneNumber
         }
         fetch(serverConn.serverUri, {
             method: 'POST',
@@ -228,7 +285,37 @@ export default class HighScore extends Component {
         .done()
     }
     _storeData = (res) => {
-        console.log(res)
+        const phoneNumber = this.state.phoneNumber
+        const contacts = this.state.contacts
+        let friendNumbers = []
+        contacts.forEach(element => {
+            friendNumbers.push(element.phoneNumbers.number)
+        });
+        let data = {
+            global: {
+                memory: [],
+                puzzle: [],
+            },
+            friend: {
+                memory: [],
+                puzzle: []
+            }
+        }
+        res.memory.forEach(element => {
+            data.global.memory.push(element)
+            if (friendNumbers.includes(element.phone)) {
+                data.friend.memory.push(element)
+            }
+        })
+        res.puzzle.forEach(element => {
+            data.global.puzzle.push(element)
+            if (friendNumbers.includes(element.phone)) {
+                data.friend.puzzle.push(element)
+            }
+        })
+        this.setState({
+            data: data
+        })
     }
     handleOnClickEvent = (g, p) => {
         const screenWidth = Dimensions.get('window').width
@@ -302,10 +389,10 @@ export default class HighScore extends Component {
             let rows = []
             switch (i) {
                 case 0:
-                    data = this.state.data.friend.memory
+                    data = this.state.data.local.memory
                 break;
                 case 1:
-                    data = this.state.data.friend.puzzle
+                    data = this.state.data.local.puzzle
                 break;
                 case 2:
                     data = this.state.data.global.memory
@@ -335,6 +422,7 @@ export default class HighScore extends Component {
     render() {
         return (
             <View style={{flex: 1}}>
+                <Text>{DeviceInfo.getPhoneNumber()}</Text>
                 <HeadBoard
                     isGlobal={this.state.category.isGlobal}
                     isPuzzle={this.state.category.isPuzzle}
