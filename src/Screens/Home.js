@@ -9,9 +9,11 @@ import {
     StyleSheet,
     AsyncStorage,
     SafeAreaView,
-    BackHandler
+    BackHandler,
+    Alert,
+    ToastAndroid
 } from 'react-native'
-
+import BackgroundTimer from 'react-native-background-timer'
 import { 
     Transitioner 
 } from 'react-navigation'
@@ -24,9 +26,30 @@ export default class Home extends Component {
         super()
         this.state = {
             isChange: false,
-            wantAnimation: true
+            wantAnimation: true,
+            backButtonCount: 0
         }
         this._getData()
+    }
+    componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.alertDialogBox)
+    }
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.alertDialogBox)
+    }
+    alertDialogBox = () => {
+        if (this.state.backButtonCount == 0) {
+            ToastAndroid.show('Double press to exit', ToastAndroid.SHORT)
+            BackHandler.addEventListener('hardwareBackPress', this.doubleBackButtonPress)
+            const doubleBack = BackgroundTimer.setTimeout(() => {
+                BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+            }, 2000)
+        }
+        return true
+    }
+    doubleBackButtonPress = () => {
+        BackHandler.exitApp()
+        return true
     }
     _getData = async () => {
         try {

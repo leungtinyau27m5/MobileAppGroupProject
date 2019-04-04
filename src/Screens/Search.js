@@ -11,7 +11,8 @@ import {
     TouchableHighlight,
     AsyncStorage,
     AppState,
-    BackHandler
+    BackHandler,
+    ToastAndroid
 } from 'react-native'
 
 import Modal from 'react-native-modal'
@@ -34,6 +35,7 @@ export default class Search extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
+        BackHandler.addEventListener('hardwareBackPress', this.toastWarningMsg)
         this.intervalId = BackgroundTimer.setInterval(
             () => this.setState((prevState) => ({
                 counting: prevState.counting - 1,
@@ -45,6 +47,18 @@ export default class Search extends Component {
             BackgroundTimer.clearInterval(this.intervalId)
             this.timeOver()
         }
+    }
+    toastWarningMsg = () => {
+        ToastAndroid.show('Double press to forgive the game!', ToastAndroid.SHORT)
+        BackHandler.addEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        this.doubleBack = BackgroundTimer.setTimeout(() => {
+            BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        }, 2000)
+        return true
+    }
+    doubleBackButtonPress = () => {
+        this.props.navigation.navigate('SelectGame')
+        return true
     }
     timeOver = () => {
         if (this.state.counting === 0) {
@@ -58,6 +72,9 @@ export default class Search extends Component {
     componentWillUnmount = async() => {
         AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange);
         BackgroundTimer.clearInterval(this.intervalId)
+        BackHandler.removeEventListener('hardwareBackPress', this.toastWarningMsg)
+        BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        BackgroundTimer.clearTimeout(this.doubleBack)
         this.props.screenProps.addTotalTimePlayed(90 - this.state.counting)
 
         let value = await AsyncStorage.getItem('gameRecord')

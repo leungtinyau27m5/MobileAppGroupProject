@@ -6,9 +6,10 @@ import {
     SafeAreaView,
     StyleSheet,
     AppState,
-    BackHandler
+    BackHandler,
+    ToastAndroid
 } from 'react-native'
-
+import BackgroundTimer from 'react-native-background-timer'
 import { Col, Row, Grid } from 'react-native-easy-grid'
 
 import { ItemContainer } from '../Components/ItemContainer'
@@ -20,11 +21,27 @@ export default class Prepare extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange);
-        BackHandler.addEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
+        //BackHandler.addEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
+        BackHandler.addEventListener('hardwareBackPress', this.toastWarningMsg)
     }
     componentWillUnmount() {
         AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange);
-        BackHandler.removeEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
+        //BackHandler.removeEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
+        BackHandler.removeEventListener('hardwareBackPress', this.toastWarningMsg)
+        BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        BackgroundTimer.clearTimeout(this.doubleBack)
+    }
+    toastWarningMsg = () => {
+        ToastAndroid.show('Double press to forgive the game!', ToastAndroid.SHORT)
+        BackHandler.addEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        this.doubleBack = BackgroundTimer.setTimeout(() => {
+            BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        }, 2000)
+        return true
+    }
+    doubleBackButtonPress = () => {
+        this.props.navigation.navigate('SelectGame')
+        return true
     }
     backButtonPress = (route) => {
         this.props.navigation.navigate(route)
