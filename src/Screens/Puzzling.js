@@ -15,7 +15,7 @@ import {
     ToastAndroid
 } from 'react-native'
 import Modal from 'react-native-modal'
-
+import BackgroundTimer from 'react-native-background-timer'
 import { serverConn } from '../server/config'
 
 const {height, width} = Dimensions.get('window')
@@ -104,11 +104,27 @@ export default class Puzzling extends Component {
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
-        BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
+        BackHandler.addEventListener('hardwareBackPress', this.toastWarningMsg)
+        //BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
     }
     componentWillUnmount() {
         AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange)
-        BackHandler.removeEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
+        BackHandler.removeEventListener('hardwareBackPress', this.toastWarningMsg)
+        BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        BackgroundTimer.clearTimeout(this.doubleBack)
+        //BackHandler.removeEventListener('hardwareBackPress', () => this.props.screenProps.handleBackButtonPress('ChoosePuzzle'))
+    }
+    toastWarningMsg = () => {
+        ToastAndroid.show('Double press to back to the scene!', ToastAndroid.SHORT)
+        BackHandler.addEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        this.doubleBack = BackgroundTimer.setTimeout(() => {
+            BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
+        }, 2000)
+        return true
+    }
+    doubleBackButtonPress = () => {
+        this.props.navigation.navigate('SelectGame')
+        return true
     }
     backToSelectScene() {
         this.saveGame()
