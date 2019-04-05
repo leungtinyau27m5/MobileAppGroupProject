@@ -96,8 +96,8 @@ export default class Puzzling extends Component {
                 row: c.boardArray.length - 1,
                 col: c.boardArray[0].length - 1
             },
-            //isWin: false,
-            isWin: true,
+            isWin: false,
+            //isWin: true,
             steps: 0,
             isRearranged: false,
             register: null,

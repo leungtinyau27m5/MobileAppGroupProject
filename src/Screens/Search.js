@@ -18,6 +18,9 @@ import {
 import Modal from 'react-native-modal'
 import BackgroundTimer from 'react-native-background-timer'
 
+import { serverConn } from '../server/config'
+import ModalNewRecord from '../Components/ModalNewRecord'
+import DeviceInfo from 'react-native-device-info'
 import { Items } from '../Components/Items'
 import { ItemBox } from '../Components/ItemBox'
 
@@ -29,9 +32,13 @@ export default class Search extends Component {
             life: 5,
             gameOver: false,
             modalGameOver: false,
-            counting: 90
+            counting: 90,
+            username: null,
+            imageChanged: false,
+            register: null
         }
         this._renderRows = this._renderRows.bind(this)
+        this._getName()
     }
     componentDidMount() {
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange)
@@ -66,6 +73,15 @@ export default class Search extends Component {
                 gameOver: true,
                 modalGameOver: true,
                 counting: -1
+            })
+        }
+    }
+    _getName = async() => {
+        const name = await AsyncStorage.getItem('username')
+        console.log(name)
+        if (name !== null) {
+            this.setState({
+                username: name
             })
         }
     }
@@ -146,11 +162,210 @@ export default class Search extends Component {
         }
         return lifeItems
     }
-    _closeModal = async (isVisible) => {
+    _closeModal = () => {
         this.setState({
-            modalGameOver: isVisible
+            modalGameOver: false
+        }, () => {
+            //this.props.navigation.navigate('Home')
         })
-        this.props.navigation.navigate('SelectGame')
+    }
+    onTextChange = (text) => {
+        this.setState({
+            username: text
+        })
+    }
+    imageIsChanged = () => {
+        this.setState({
+            imageChanged: true
+        })
+    }
+    getPhoneNumber = async() => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
+                {
+                    title: 'Your Phone number is needed',
+                    message: 
+                        'We need your phone number to identify yourself',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK'
+                }
+            )
+            if (granted == PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('Permission is granted')
+            } else {
+                ToastAndroid.show('Permission is not granted', ToastAndroid.SHORT)
+            }
+        } catch (err) {
+            ToastAndroid.show('Cant grant permission', ToastAndroid.SHORT)
+        }
+    }
+    registerPhoneNumber = async(phoneNumber, imageUri) => {
+        const uriPart = imageUri.split('.')
+        const fileExtension = uriPart[uriPart.length - 1]
+        const data = {
+            request: 'register',
+            phone: phoneNumber,
+            username: this.state.username,
+            image: {
+                uri: imageUri,
+                name: `${phoneNumber}.${fileExtension}`,
+                type: `image/${fileExtension}`
+            }
+        }
+        let body = new FormData()
+        body.append('request', data.request)
+        body.append('phone', data.phone)
+        body.append('username', data.username)
+        body.append('image', {
+            uri: data.image.uri,
+            name: data.image.name,
+            type: data.image.type
+        })
+        fetch(serverConn.serverUri, {
+            method: 'POST',
+            header: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+            },
+            body: body
+        })
+        .then((response) => response.json())
+        .then(responseData => {
+            this._storeRid(responseData)
+        })
+        .catch((err) => {
+            ToastAndroid.show('Register Request Failed', ToastAndroid.LONG)
+            console.log(err)
+        })
+        .done()
+    }
+    _storeRid = async(responseData) => {
+        if (responseData) {
+            await AsyncStorage.setItem('rid', responseData)
+            await AsyncStorage.setItem('username', this.state.username)
+            this.setState({ 
+                register: responseData
+            }, () => this.fetchData(responseData))
+        }
+    }
+    updateMyPersonalData = async(rid, imageUri) => {
+        const phoneNumber = DeviceInfo.getPhoneNumber()
+        //const OriginImg = await AsyncStorage.getItem('myIcon')
+        const OriginName = await AsyncStorage.getItem('username')
+        const uriPart = imageUri.split('.')
+        const fileExtension = uriPart[uriPart.length - 1]
+        const data = {
+            request: 'updateMyPersonalData',
+            username: null,
+            rid: rid,
+            image: {
+                uri: null,
+                name: null,
+                type: null,
+            }
+        }
+        let body = new FormData()
+        if (this.state.imageChanged) {
+            data.image.uri = imageUri
+            data.image.name = `${phoneNumber}.${fileExtension}`
+            data.image.type = `image/${fileExtension}`
+        }
+        console.log(this.state.username)
+        console.log(OriginName)
+        console.log('test case', OriginName == this.state.name)
+        if (OriginName !== this.state.username)
+            data.username = this.state.username
+        body.append('request', data.request)
+        body.append('rid', data.rid)
+        if (data.username !== null)
+            body.append('username', data.username)
+        else 
+            body.append('username', null)
+        if (data.image.uri !== null) {
+            body.append('image', {
+                uri: data.image.uri,
+                name: data.image.name,
+                type: data.image.type
+            })
+        } else {
+            body.append('image', null)
+        }
+        console.log(body)
+        if (data.username !== null || data.image.uri !== null) {
+            fetch(serverConn.serverUri, {
+                method: 'POST',
+                header: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                },
+                body: body
+            })
+            .then((response) => console.log(response))
+            .then(responseData => {
+                this.setItems(imageUri)
+            })
+            .catch((err) => {
+                ToastAndroid.show('Register Request Failed', ToastAndroid.LONG)
+                console.log(err)
+            })
+            .done()
+        }
+    }
+    setItems = async(imageUri) => {
+        if (imageUri) {
+            await AsyncStorage.setItem('username', this.state.username)
+            await AsyncStorage.setItem('myIcon', imageUri)
+        }
+    }
+    uploadMyGameRecord = async(imageUri) => {
+        let rid = await AsyncStorage.getItem('rid')
+        let phoneNumber
+        if (rid == null) {
+            this.getPhoneNumber()
+            phoneNumber = DeviceInfo.getPhoneNumber()
+            if (phoneNumber !== null) {
+                this.registerPhoneNumber(phoneNumber, imageUri)
+            }
+        } else {
+            this.updateMyPersonalData(rid, imageUri)
+            this.setState({ 
+                register: rid 
+            }, () => this.fetchData(rid))
+        }
+    }
+    fetchData = async(rid) => {
+        const data = {
+            request: 'updateGameRecord',
+            game: 'memory',
+            level: null,
+            rid: rid,
+            record: this.props.screenProps.showPlayedTime(),
+        }
+        fetch(serverConn.serverUri, {
+            method: 'POST',
+            header: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then((response) => response.json())
+        .then(responseData => {
+            console.log(responseData)
+        })
+        .catch((error) => {
+            ToastAndroid.show('Fetch Request Failed', ToastAndroid.LONG)
+            console.log("server request Error", error)
+        })
+        .done(() => {
+            this.setState({
+                modalGameOver: false
+            }, () => {
+                this.props.navigation.navigate('SelectGame')
+            })
+        })
     }
     render() {
         return(
@@ -159,25 +374,14 @@ export default class Search extends Component {
                     isVisible={this.state.modalGameOver}
                     animationIn='flash'
                 >
-                    <View style={styles.modalContainer}>
-                        <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Lose the Game!</Text>
-                        <Image
-                            source={require('../assets/img/giphy.gif')}
-                            resizeMode='cover'
-                            style={{width: 180, height: 130}}
-                        />
-                        <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Record is :</Text><Text style={{color: '#FFFFFF', fontSize: 28}}>{this.props.screenProps.showPlayedTime()}</Text>
-                        <TouchableHighlight
-                            style={{
-                                marginTop: 15
-                            }}
-                            onPress={()=>{
-                                this._closeModal(!this.state.modalGameOver)
-                            }}
-                        >
-                            <Text style={{color: '#FFFFFF', fontSize: 22}}>Retry!</Text>
-                        </TouchableHighlight>
-                    </View>
+                    <ModalNewRecord 
+                        onPress={this._closeModal}
+                        confirmRecord={this.uploadMyGameRecord}
+                        score={this.props.screenProps.showPlayedTime()}
+                        onChangeText={this.onTextChange}
+                        username={this.state.username}
+                        imageIsChanged={this.imageIsChanged}
+                    />
                 </Modal>
                 <View style={{
                     width: '100%',
@@ -221,3 +425,24 @@ const styles = StyleSheet.create({
         borderRadius: 35
     }
 })
+/*
+<View style={styles.modalContainer}>
+                        <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Lose the Game!</Text>
+                        <Image
+                            source={require('../assets/img/giphy.gif')}
+                            resizeMode='cover'
+                            style={{width: 180, height: 130}}
+                        />
+                        <Text style={{color: '#FFFFFF', fontSize: 20}}>Your Record is :</Text><Text style={{color: '#FFFFFF', fontSize: 28}}>Level {this.props.screenProps.showPlayedTime()}</Text>
+                        <TouchableHighlight
+                            style={{
+                                marginTop: 15
+                            }}
+                            onPress={()=>{
+                                this._closeModal(!this.state.modalGameOver)
+                            }}
+                        >
+                            <Text style={{color: '#FFFFFF', fontSize: 22}}>Retry!</Text>
+                        </TouchableHighlight>
+                    </View>
+*/

@@ -109,14 +109,7 @@ export default class Game extends Component {
         }))
     }
     showPlayedTime = () => {
-        let total = this.state.totalTimePlayed
-        let hour = Math.floor(this.state.totalTimePlayed / (60 * 60))
-        total = total % (60 * 60)
-        let mintues = Math.floor(total / 60)
-        total = total % 60
-        let sec = total
-        const timeUsed = `${hour} : ${mintues} : ${sec}`
-        return timeUsed
+        return this.state.level
     }
     nextGame = () => {
         let currentLevel = this.state.level
