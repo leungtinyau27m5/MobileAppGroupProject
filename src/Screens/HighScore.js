@@ -9,18 +9,81 @@ import {
     BackHandler,
     PermissionsAndroid,
     AsyncStorage,
-    ToastAndroid
+    ToastAndroid,
+    Image
 } from 'react-native'
 import { serverConn } from '../server/config'
 import DeviceInfo from 'react-native-device-info'
 import Contacts from 'react-native-contacts'
 
 class HeadBoard extends Component {
+    constructor(props) {
+        super()
+        this.state = {
+            rank: null,
+            pts: null
+        }
+    }
     render() {
-        //console.error(this.props)
+        let rank = '//'
+        let pts = '//'
+        let targetDataSet
+        if (this.props.isPuzzle) {
+            if (this.props.isGlobal) {
+                if (this.props.puzzleLevel == '1')
+                    targetDataSet = this.props.data.global.puzzle.easy
+                else if (this.props.puzzleLevel == '2')
+                    targetDataSet = this.props.data.global.puzzle.normal
+                else if (this.props.puzzleLevel == '3')
+                    targetDataSet = this.props.data.global.puzzle.hard
+            } else {
+                if (this.props.puzzleLevel == '1')
+                    targetDataSet = this.props.data.friend.puzzle.easy
+                else if (this.props.puzzleLevel == '2')
+                    targetDataSet = this.props.data.friend.puzzle.normal
+                else if (this.props.puzzleLevel == '3')
+                    targetDataSet = this.props.data.friend.puzzle.hard
+            }
+        } else {
+            if (this.props.isGlobal) 
+                targetDataSet = this.props.data.global.memory
+            else 
+                targetDataSet = this.props.data.friend.memory
+        }
+        targetDataSet.forEach((element, index) => {
+            if (element.rid == this.props.rid) {
+                rank = index + 1
+                pts = element.score
+            }
+        });
+        /*
+        let rank
+        if (this.props.isPuzzle) {
+            if (this.props.isGlobal) {
+                if (this.props.isPuzzle == '1')
+                    rank = this.props.me.puzzle.easy == null ? '//' : this.props.me.puzzle.easy.th.global
+                else if (this.props.isPuzzle == '2')
+                    rank = this.props.me.puzzle.normal == null ? '//' : this.props.me.puzzle.normal.th.global
+                else if (this.props.isPuzzle == '3')
+                    rank = this.props.me.puzzle.hard == null ? '//' : this.props.me.puzzle.hard.th.global
+            } else {
+                if (this.props.isPuzzle == '1')
+                    rank = this.props.me.puzzle.easy == null ? '//' : this.props.me.puzzle.easy.th.friend
+                else if (this.props.isPuzzle == '2')
+                    rank = this.props.me.puzzle.normal == null ? '//' : this.props.me.puzzle.normal.th.friend
+                else if (this.props.isPuzzle == '3')
+                    rank = this.props.me.puzzle.hard == null ? '//' : this.props.me.puzzle.hard.th.friend
+            }
+        } else {
+            if (this.props.isGlobal) {
+                rank = this.props.me.memory == null ? '//' : this.props.me.memory.th.global
+            } else {
+                rank = this.props.me.memory == null ? '//' : this.props.me.memory.th.friend
+            }
+        }*/
         return (
             <View style={{
-                paddingTop: 15,
+                paddingTop: 5,
                 flex: 1,
                 backgroundColor: '#FFBC00',
             }}>
@@ -46,16 +109,19 @@ class HeadBoard extends Component {
                         justifyContent: 'center'
                     }}>
                         <Text style={{
-                            fontSize: 24,
+                            fontSize: 25,
                             color: '#FFF'
-                        }}>th</Text>
+                        }}>{rank}</Text>
                     </View>
                     <View style={{
                         flex: 1,
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
-                        <Text>Avatar</Text>
+                        <Image
+                            source={{uri: this.props.myIcon}}
+                            style={{width: 60, height: 60, borderRadius: 30}}
+                        />
                     </View>
                     <View style={{
                         flex: 1,
@@ -63,16 +129,16 @@ class HeadBoard extends Component {
                         justifyContent: 'center',
                     }}>
                         <Text style={{
-                            fontSize: 24,
+                            fontSize: 25,
                             color: '#FFF'
-                        }}>pts</Text>
+                        }}>{`${pts} pts`}</Text>
                     </View>
                 </View>
                 <View style={{
                     justifyContent: 'center',
                     position: 'absolute',
                     bottom: 0,
-                    width: '100%'
+                    width: '100%',
                 }}>
                 <View style={{flexDirection: 'row'}}>
                     <TouchableOpacity style={[ this.props.isGlobal ? {backgroundColor: '#FFF'} : styles.categoryBg,
@@ -146,15 +212,18 @@ class UserRecords extends Component {
                 justifyContent: 'center',
                 paddingHorizontal: 25
             }}>
-                <View style={{flex: 1, justifyContent: 'center'}}>
-                    <Text style={{fontSize: 23}}>{this.props.data.rank}</Text>
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-start'}}>
+                    <Text style={{fontSize: 23}}>{this.props.rank + 1}</Text>
                 </View>
                 <View style={{flex: 4, justifyContent: 'center', flexDirection: 'row'}}>
-                    <View style={{flex: 1, justifyContent: 'center'}}>
-                    <Text>avatar</Text>
-                    </View>
                     <View style={{flex: 3, justifyContent: 'center'}}>
-                    <Text style={{fontSize: 18}}>{this.props.data.username}</Text>
+                        <Image
+                            source={{uri: serverConn.serverAvatar + this.props.data.imageUri}}
+                            style={{width: 60, height: 60, borderRadius: 30}}
+                        />
+                    </View>
+                    <View style={{flex: 3, justifyContent: 'center', marginLeft: 15}}>
+                        <Text style={{fontSize: 18}}>{this.props.data.username}</Text>
                     </View>
                 </View>
                 <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end'}}>
@@ -171,11 +240,14 @@ export default class HighScore extends Component {
             phoneNumber: null,
             rid: null,
             contacts: null,
+            username: null,
+            myIcon: null,
             category: {
                 isGlobal: false,
                 isPuzzle: false,
                 puzzleLevel: '0'
             },
+            rank: null,
             currentTabs: null,
             data: {
                 friend: {
@@ -195,7 +267,7 @@ export default class HighScore extends Component {
                         normal: [],
                         hard: [],
                     }
-                }
+                },
             },
         }
         this.scrollViewOfRecords = null
@@ -271,12 +343,11 @@ export default class HighScore extends Component {
         })
         .catch((error) => {
             ToastAndroid.show('Fetch Request Failed', ToastAndroid.LONG)
-            console.log("server request Error", error)
+            //console.log("server request Error", error)
         })
         .done()
     }
     _storeData = async(data) => {
-        console.log(data)
         this.setState({
             data: {
                 friend: {
@@ -294,10 +365,8 @@ export default class HighScore extends Component {
                         normal: data.global.puzzle.normal,
                         hard: data.global.puzzle.hard,
                     }
-                }
+                },
             }
-        }, () => {
-            console.log(this.state)
         })
     }
     handleOnClickEvent = (g, p, l) => {
@@ -329,7 +398,7 @@ export default class HighScore extends Component {
     }
     scrollingEvent = (event) => {
         const num = Math.floor(event.nativeEvent.contentOffset.x)
-        console.log(num)
+        //console.log(num)
         const screenWidth = Dimensions.get('window').width
         if (num == 0) {
             this.setState({
@@ -340,7 +409,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if(num <= screenWidth) {
-            console.log('stage 1')
+            //console.log('stage 1')
             this.setState({
                 category: {
                     isGlobal: false,
@@ -349,7 +418,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if(num <= screenWidth * 2) {
-            console.log('stage 2')
+            //console.log('stage 2')
             this.setState({
                 category: {
                     isGlobal: false,
@@ -358,7 +427,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if(num <= screenWidth * 3) {
-            console.log('stage 3')
+            //console.log('stage 3')
             this.setState({
                 category: {
                     isGlobal: false,
@@ -367,7 +436,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if(num <= screenWidth * 4) {
-            console.log('stage 4')
+            //console.log('stage 4')
             this.setState({
                 category: {
                     isGlobal: true,
@@ -376,7 +445,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if (num <= screenWidth * 5) {
-            console.log('stage 5')
+            //console.log('stage 5')
             this.setState({
                 category: {
                     isGlobal: true,
@@ -385,7 +454,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if (num <= screenWidth * 6) {
-            console.log('stage 6')
+            //console.log('stage 6')
             this.setState({
                 category: {
                     isGlobal: true,
@@ -394,7 +463,7 @@ export default class HighScore extends Component {
                 }
             })
         } else if (num <= screenWidth * 7) {
-            console.log('stage 7')
+            //console.log('stage 7')
             this.setState({
                 category: {
                     isGlobal: true,
@@ -440,6 +509,7 @@ export default class HighScore extends Component {
                 data.forEach((element, index) => {
                     rows.push(
                         <UserRecords
+                            rank={index}
                             key={index}
                             width={width}
                             data={element}
@@ -462,6 +532,11 @@ export default class HighScore extends Component {
                 <HeadBoard
                     isGlobal={this.state.category.isGlobal}
                     isPuzzle={this.state.category.isPuzzle}
+                    rid={this.state.rid}
+                    data={this.state.data}
+                    //data={this.state.data}
+                    myIcon={this.state.myIcon}
+                    puzzleLevel={this.state.category.puzzleLevel}
                     handleOnClickEvent={this.handleOnClickEvent}
                 />
                 <View style={{flex: 2}}>

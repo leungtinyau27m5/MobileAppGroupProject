@@ -79,7 +79,9 @@ export default class Home extends Component {
         }
     }
     _getRid = async() => {
-        //await AsyncStorage.removeItem('rid')
+        await AsyncStorage.removeItem('rid')
+        await AsyncStorage.removeItem('username')
+        await AsyncStorage.removeItem('myIcon')
         let rid = await AsyncStorage.getItem('rid')
         let username = await AsyncStorage.getItem('username')
         if (rid !== null) return
