@@ -11,7 +11,8 @@ import {
     SafeAreaView,
     BackHandler,
     Alert,
-    ToastAndroid
+    ToastAndroid,
+    PermissionsAndroid
 } from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
 import { 
@@ -20,6 +21,9 @@ import {
 import * as Animatable from 'react-native-animatable'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import DeviceInfo from 'react-native-device-info'
+
+import { serverConn } from '../server/config'
 
 export default class Home extends Component {
     constructor(props) {
@@ -30,6 +34,7 @@ export default class Home extends Component {
             backButtonCount: 0
         }
         this._getData()
+        this._getRid()
     }
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.alertDialogBox)
@@ -51,6 +56,67 @@ export default class Home extends Component {
         BackHandler.exitApp()
         return true
     }
+    _getPhoneNumber = async() => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
+                {
+                    title: 'Your Phone number is needed',
+                    message: 
+                        'We need your phone number to identify yourself',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK'
+                }
+            )
+            if (granted == PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('Permission is granted')
+            } else {
+                ToastAndroid.show('Permission is not granted', ToastAndroid.SHORT)
+            }
+        } catch (err) {
+            ToastAndroid.show('Cant grant permission', ToastAndroid.SHORT)
+        }
+    }
+    _getRid = async() => {
+        await AsyncStorage.removeItem('rid')
+        let rid = await AsyncStorage.getItem('rid')
+        let username = await AsyncStorage.getItem('username')
+        if (rid !== null) return
+
+        this._getPhoneNumber()
+        const phoneNumber = DeviceInfo.getPhoneNumber()
+        if (phoneNumber == null) 
+            ToastAndroid.show('Phone number is not granted', ToastAndroid.SHORT)
+        
+        const data = {
+            request: 'getMyToken',
+            phone: phoneNumber
+        }
+        fetch(serverConn.serverUri, {
+            method: 'POST',
+            header: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then((response) => response.json())
+        .then(responseData => {
+            this._storeRid(responseData)
+        })
+        .catch((err) => {
+            ToastAndroid.show('Request Failed', ToastAndroid.SHORT)
+            console.log(err)
+        })
+        .done()
+    }
+    _storeRid = async (responseData) => {
+        if (responseData !== false) {
+            await AsyncStorage.setItem('rid', responseData.rid)
+            await AsyncStorage.setItem('username', responseData.username)
+        }
+    }
     _getData = async () => {
         try {
             const value = await AsyncStorage.getItem('PlayHomeAnima')
@@ -69,7 +135,6 @@ export default class Home extends Component {
         }
     }
     render() {
-        //console.error(this.props.screenProps.androidBackHandler)
         return (
             <SafeAreaView>
                 <ImageBackground
