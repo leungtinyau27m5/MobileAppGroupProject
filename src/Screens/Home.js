@@ -31,12 +31,14 @@ export default class Home extends Component {
         this.state = {
             isChange: false,
             wantAnimation: true,
-            backButtonCount: 0
+            backButtonCount: 0,
+            phoneNumber: ''
         }
         this._getData()
         this._getRid()
     }
     componentDidMount() {
+        //this._getRid()
         BackHandler.addEventListener('hardwareBackPress', this.alertDialogBox)
     }
     componentWillUnmount() {
@@ -70,26 +72,30 @@ export default class Home extends Component {
                 }
             )
             if (granted == PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Permission is granted')
+                AsyncStorage.setItem('phoneNumber', DeviceInfo.getPhoneNumber())
+                this.setState({ phoneNumber: DeviceInfo.getPhoneNumber()})
             } else {
                 ToastAndroid.show('Permission is not granted', ToastAndroid.SHORT)
             }
         } catch (err) {
+            console.log('byebye')
             ToastAndroid.show('Cant grant permission', ToastAndroid.SHORT)
         }
     }
     _getRid = async() => {
-        await AsyncStorage.removeItem('rid')
-        await AsyncStorage.removeItem('username')
-        await AsyncStorage.removeItem('myIcon')
+        //await AsyncStorage.removeItem('rid')
+        console.log('hello')
+        this._getPhoneNumber()
         let rid = await AsyncStorage.getItem('rid')
-        let username = await AsyncStorage.getItem('username')
+        console.log(rid)
         if (rid !== null) return
 
-        this._getPhoneNumber()
-        const phoneNumber = DeviceInfo.getPhoneNumber()
-        if (phoneNumber == null) 
-            ToastAndroid.show('Phone number is not granted', ToastAndroid.SHORT)
+        const phoneNumber = await AsyncStorage.getItem('phoneNumber')
+        console.log(phoneNumber)
+        if (phoneNumber == null || phoneNumber == '') {
+            console.log('is in')
+            return 
+        }
         
         const data = {
             request: 'getMyToken',
@@ -245,6 +251,7 @@ export default class Home extends Component {
                                 <Text style={[styles.buttonText]}>
                                     Start !
                                 </Text>
+                                <Text>{DeviceInfo.getPhoneNumber()}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.touchableButton,styles.settingButton, {}]}

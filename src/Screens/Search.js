@@ -35,9 +35,11 @@ export default class Search extends Component {
             counting: 90,
             username: null,
             imageChanged: false,
-            register: null
+            register: null,
+            phoneNumber: null
         }
         this._renderRows = this._renderRows.bind(this)
+        //this.getPhoneNumber()
         this._getName()
     }
     componentDidMount() {
@@ -166,7 +168,7 @@ export default class Search extends Component {
         this.setState({
             modalGameOver: false
         }, () => {
-            //this.props.navigation.navigate('Home')
+            this.props.navigation.navigate('SelectGame')
         })
     }
     onTextChange = (text) => {
@@ -229,9 +231,17 @@ export default class Search extends Component {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
             },
+            /*
+            header: {
+                //'Accept': 'application/json',
+                //'Content-Type': 'application/json'
+                'Content-Type': 'multipart/form-data',
+            },*/
+            //body: JSON.stringify(data)
             body: body
         })
         .then((response) => response.json())
+        //.then((response) => console.log(response))
         .then(responseData => {
             this._storeRid(responseData)
         })
@@ -248,6 +258,20 @@ export default class Search extends Component {
             this.setState({ 
                 register: responseData
             }, () => this.fetchData(responseData))
+        }
+    }
+    uploadMyGameRecord = async(imageUri) => {
+        let rid = await AsyncStorage.getItem('rid')
+        let phoneNumber
+        if (rid == null) {
+            this.getPhoneNumber()
+            phoneNumber = DeviceInfo.getPhoneNumber()
+            this.registerPhoneNumber(phoneNumber, imageUri)
+        } else {
+            this.updateMyPersonalData(rid, imageUri)
+            this.setState({ 
+                register: rid 
+            }, () => this.fetchData(rid))
         }
     }
     updateMyPersonalData = async(rid, imageUri) => {
@@ -272,17 +296,15 @@ export default class Search extends Component {
             data.image.name = `${phoneNumber}.${fileExtension}`
             data.image.type = `image/${fileExtension}`
         }
-        console.log(this.state.username)
-        console.log(OriginName)
-        console.log('test case', OriginName == this.state.name)
-        if (OriginName !== this.state.username)
-            data.username = this.state.username
+        console.log('test case', OriginName)
         body.append('request', data.request)
         body.append('rid', data.rid)
+        if (OriginName !== this.state.username)
+            data.username = this.state.username
         if (data.username !== null)
             body.append('username', data.username)
         else 
-            body.append('username', null)
+            body.append('username', '')
         if (data.image.uri !== null) {
             body.append('image', {
                 uri: data.image.uri,
@@ -292,8 +314,9 @@ export default class Search extends Component {
         } else {
             body.append('image', null)
         }
-        console.log(body)
-        if (data.username !== null || data.image.uri !== null) {
+        console.log('POST    00000000000000000000000000   ', body)
+        if (data.username !== '' || data.image.uri !== null) {
+            console.log('it is not null and run!!!!!!!!')
             fetch(serverConn.serverUri, {
                 method: 'POST',
                 header: {
@@ -302,8 +325,9 @@ export default class Search extends Component {
                 },
                 body: body
             })
-            .then((response) => console.log(response))
+            .then((response) => response.json())
             .then(responseData => {
+                console.log(responseData)
                 this.setItems(imageUri)
             })
             .catch((err) => {
@@ -314,26 +338,8 @@ export default class Search extends Component {
         }
     }
     setItems = async(imageUri) => {
-        if (imageUri) {
-            await AsyncStorage.setItem('username', this.state.username)
-            await AsyncStorage.setItem('myIcon', imageUri)
-        }
-    }
-    uploadMyGameRecord = async(imageUri) => {
-        let rid = await AsyncStorage.getItem('rid')
-        let phoneNumber
-        if (rid == null) {
-            this.getPhoneNumber()
-            phoneNumber = DeviceInfo.getPhoneNumber()
-            if (phoneNumber !== null) {
-                this.registerPhoneNumber(phoneNumber, imageUri)
-            }
-        } else {
-            this.updateMyPersonalData(rid, imageUri)
-            this.setState({ 
-                register: rid 
-            }, () => this.fetchData(rid))
-        }
+        await AsyncStorage.setItem('username', this.state.username)
+        await AsyncStorage.setItem('myIcon', imageUri)
     }
     fetchData = async(rid) => {
         const data = {

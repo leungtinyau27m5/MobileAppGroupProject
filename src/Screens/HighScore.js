@@ -50,37 +50,23 @@ class HeadBoard extends Component {
             else 
                 targetDataSet = this.props.data.friend.memory
         }
+        if (targetDataSet !== undefined && targetDataSet !== null) {
+            for (let i = 0; i < targetDataSet.length; i++) {
+                if (targetDataSet !== null && targetDataSet[i] !== null && targetDataSet[i].rid !== null) {
+                    if (targetDataSet[i].rid == this.props.rid) {
+                        rank = i + 1
+                        pts = targetDataSet[i].score
+                    }
+                }
+            }
+        }
+        /*
         targetDataSet.forEach((element, index) => {
             if (element.rid == this.props.rid) {
                 rank = index + 1
                 pts = element.score
             }
-        });
-        /*
-        let rank
-        if (this.props.isPuzzle) {
-            if (this.props.isGlobal) {
-                if (this.props.isPuzzle == '1')
-                    rank = this.props.me.puzzle.easy == null ? '//' : this.props.me.puzzle.easy.th.global
-                else if (this.props.isPuzzle == '2')
-                    rank = this.props.me.puzzle.normal == null ? '//' : this.props.me.puzzle.normal.th.global
-                else if (this.props.isPuzzle == '3')
-                    rank = this.props.me.puzzle.hard == null ? '//' : this.props.me.puzzle.hard.th.global
-            } else {
-                if (this.props.isPuzzle == '1')
-                    rank = this.props.me.puzzle.easy == null ? '//' : this.props.me.puzzle.easy.th.friend
-                else if (this.props.isPuzzle == '2')
-                    rank = this.props.me.puzzle.normal == null ? '//' : this.props.me.puzzle.normal.th.friend
-                else if (this.props.isPuzzle == '3')
-                    rank = this.props.me.puzzle.hard == null ? '//' : this.props.me.puzzle.hard.th.friend
-            }
-        } else {
-            if (this.props.isGlobal) {
-                rank = this.props.me.memory == null ? '//' : this.props.me.memory.th.global
-            } else {
-                rank = this.props.me.memory == null ? '//' : this.props.me.memory.th.friend
-            }
-        }*/
+        });*/
         return (
             <View style={{
                 paddingTop: 5,
@@ -237,6 +223,8 @@ export default class HighScore extends Component {
     constructor(props) {
         super()
         this.state = {
+            canRender: false,
+            isRendered: false,
             phoneNumber: null,
             rid: null,
             contacts: null,
@@ -271,10 +259,13 @@ export default class HighScore extends Component {
             },
         }
         this.scrollViewOfRecords = null
-        this._getData()
+        this._recordsStorage = null
+        this._recordsBoard = null
+        //this._getData()
     }
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.backToHomePage)
+        this._getData()
     }
     componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', this.backToHomePage)
@@ -287,6 +278,9 @@ export default class HighScore extends Component {
         const rid = await AsyncStorage.getItem('rid')
         const username = await AsyncStorage.getItem('username')
         const myIcon = await AsyncStorage.getItem('myIcon')
+        console.log('high score', rid)
+        console.log('high score', username)
+        console.log('high score', myIcon)
         const data = {
             rid: rid,
             username: username,
@@ -297,7 +291,9 @@ export default class HighScore extends Component {
             PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
             {
                 'title': 'Contacts',
-                'message': 'Find your friend Here !'
+                'message': 'Find your friend Here !',
+                buttonNeutral: 'Ask Me Later',
+                buttonPositive: 'OK'
             }
         ).then(() => {
             Contacts.getAll((err, contacts) => {
@@ -305,24 +301,31 @@ export default class HighScore extends Component {
                     ToastAndroid.show('Access is deined!', ToastAndroid.SHORT)
                 } else {
                     data.contacts = contacts
+                    this._fetchData(data)
                     this.setState({
                         rid: data.rid,
                         username: data.username,
                         myIcon: data.myIcon,
                         contacts: contacts
-                    }, () => {
-                        this._fetchData(data)
                     })
                 }
             })
+            //this._fetchData(data)
         })
         //console.log('contacts : ', data.contacts)
     }
     _fetchData = async(localData) => {
+        let temp = localData.contacts
         let myContacts = []
-        localData.contacts.forEach(element => {
-            myContacts.push(element.phoneNumbers[0].number)
-        });
+        try {
+        for (let i = 0; i < temp.length; i++) {
+            if (temp[i].phoneNumbers[0] !== undefined) {
+                myContacts.push(temp[i].phoneNumbers[0].number)
+            }
+        }
+        }catch(err) {
+            console.error(err)
+        }
         const data = {
             request: 'queryGameRecord',
             rid: localData.rid,
@@ -337,17 +340,22 @@ export default class HighScore extends Component {
             body: JSON.stringify(data)
         })
         .then((response) => response.json())
-        //.then((response) => console.log(response))
         .then(responseData => {
+            ToastAndroid.show('Request Succeed', ToastAndroid.SHORT)
+            //console.error(responseData)
             this._storeData(responseData)
         })
         .catch((error) => {
+            console.log(error)
             ToastAndroid.show('Fetch Request Failed', ToastAndroid.LONG)
-            //console.log("server request Error", error)
         })
-        .done()
+        .done(() => { this.setState({ canRender: true })})
     }
     _storeData = async(data) => {
+        this._recordsStorage = data
+        console.log(this._recordsStorage)
+        this._recordsBoard = this._renderRecord()
+        /*
         this.setState({
             data: {
                 friend: {
@@ -367,7 +375,9 @@ export default class HighScore extends Component {
                     }
                 },
             }
-        })
+        }, () => {
+            //console.error('byeby', this.state.data)
+        })*/
     }
     handleOnClickEvent = (g, p, l) => {
         const screenWidth = Dimensions.get('window').width
@@ -375,6 +385,8 @@ export default class HighScore extends Component {
             x: 0,
             y: 0
         }
+        if (g == this.state.category.isGlobal && p == this.state.category.isPuzzle && l == this.state.category.puzzleLevel)
+            return
         if (!g && !p && l == '0') num.x = 0
         if (!g && p && l == '1') num.x = screenWidth
         if (!g && p && l == '2') num.x = screenWidth * 2
@@ -474,71 +486,84 @@ export default class HighScore extends Component {
         }
     }
     appendDataInTabsPage = () => {
-        let newArray = []
+        
+    }
+    _renderRecord = () => {
+        let recordBoard = []
         const width = Dimensions.get('window').width
-        for (let i = 0; i < 8; i++) {
-            let data
-            let rows = []
-            switch (i) {
-                case 0:
-                    data = this.state.data.friend.memory
-                break;
-                case 1:
-                    data = this.state.data.friend.puzzle.easy
-                break;
-                case 2:
-                    data = this.state.data.friend.memory.normal
-                break;
-                case 3:
-                    data = this.state.data.friend.puzzle.hard
-                break;
-                case 4:
-                    data = this.state.data.global.memory
-                break;
-                case 5:
-                    data = this.state.data.global.puzzle.easy
-                break;
-                case 6:
-                    data = this.state.data.global.puzzle.normal
-                break;
-                case 7:
-                    data = this.state.data.global.puzzle.hard
-                break;
+        if (this.isRendered) return
+        if (this._recordsStorage) {
+            for (let i = 0; i < 8; i++) {
+                let data = null
+                let rows = []
+                switch (i) {
+                    case 0:
+                    data = this._recordsStorage.friend.memory
+                    break;
+                    case 1:
+                    data = this._recordsStorage.friend.puzzle.easy
+                    break;
+                    case 2:
+                    data = this._recordsStorage.friend.puzzle.normal
+                    break;
+                    case 3:
+                    data = this._recordsStorage.friend.puzzle.hard
+                    break;
+                    case 4:
+                    data = this._recordsStorage.global.memory
+                    break;
+                    case 5:
+                    data = this._recordsStorage.global.puzzle.easy
+                    break;
+                    case 6:
+                    data = this._recordsStorage.global.puzzle.normal
+                    break;
+                    case 7:
+                    data = this._recordsStorage.global.puzzle.hard
+                    break;
+                }
+                //console.log('check is it rid ', data)
+                if (typeof(data) !== 'undefined' && data !== null && data !== '') {
+                    if (data.length !== 0) {
+                        for (let i = 0; i < data.length; i++) {
+                            if (data[i] !== null && data[i].length !== 0) {
+                                rows.push(
+                                    <UserRecords
+                                    rank={i}
+                                    key={i}
+                                    width={width}
+                                    data={data[i]}
+                                    backgroundColor={i % 2 == 0 ? '#FFF' : '#F1F4F6'}
+                                />
+                                )
+                            }
+                        }
+                    }
+                }
+                recordBoard.push(
+                    <ScrollView key={i} style={{width: width}}>
+                        {rows}
+                    </ScrollView>
+                )
             }
-            if (data) {
-                data.forEach((element, index) => {
-                    rows.push(
-                        <UserRecords
-                            rank={index}
-                            key={index}
-                            width={width}
-                            data={element}
-                            backgroundColor={index % 2 == 0 ? '#FFF' : '#F1F4F6'}
-                        />
-                    )
-                });
-            }
-            newArray.push(
-                <ScrollView key={i} style={{width: width}}>
-                    {rows}
-                </ScrollView>
-            )
+            return recordBoard
         }
-        return newArray
     }
     render() {
         return (
             <View style={{flex: 2}}>
+                {this.state.canRender ? 
                 <HeadBoard
                     isGlobal={this.state.category.isGlobal}
                     isPuzzle={this.state.category.isPuzzle}
                     rid={this.state.rid}
-                    data={this.state.data}
+                    data={this._recordsStorage}
                     //data={this.state.data}
                     myIcon={this.state.myIcon}
                     puzzleLevel={this.state.category.puzzleLevel}
                     handleOnClickEvent={this.handleOnClickEvent}
                 />
+                : <View></View> }
                 <View style={{flex: 2}}>
                     <View style={[{flexDirection: 'row', height: 45}, this.state.category.isPuzzle ? {display: 'flex'} : {display: 'none', flex: 0}]}>
                         <TouchableOpacity style={[styles.tabs, {justifyContent: 'center'}, this.state.category.puzzleLevel == '1' ? {backgroundColor: '#9BC746'} : {backgroundColor: '#E4F7F6'}]}
@@ -566,7 +591,7 @@ export default class HighScore extends Component {
                         scrollEventThrottle={16}
                         onMomentumScrollEnd={this.scrollingEvent}
                     >
-                        {this.appendDataInTabsPage()}
+                        {this._recordsBoard}
                     </ScrollView>
                 </View>
             </View>

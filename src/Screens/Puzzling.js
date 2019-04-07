@@ -268,9 +268,7 @@ export default class Puzzling extends Component {
         if (rid == null) {
             this.getPhoneNumber()
             phoneNumber = DeviceInfo.getPhoneNumber()
-            if (phoneNumber !== null) {
-                this.registerPhoneNumber(phoneNumber, imageUri)
-            }
+            this.registerPhoneNumber(phoneNumber, imageUri)
         } else {
             this.updateMyPersonalData(rid, imageUri)
             this.setState({ 
@@ -300,17 +298,15 @@ export default class Puzzling extends Component {
             data.image.name = `${phoneNumber}.${fileExtension}`
             data.image.type = `image/${fileExtension}`
         }
-        console.log(this.state.username)
-        console.log(OriginName)
-        console.log('test case', OriginName == this.state.name)
-        if (OriginName !== this.state.username)
-            data.username = this.state.username
+        console.log('test case', OriginName)
         body.append('request', data.request)
         body.append('rid', data.rid)
+        if (OriginName !== this.state.username)
+            data.username = this.state.username
         if (data.username !== null)
             body.append('username', data.username)
         else 
-            body.append('username', null)
+            body.append('username', '')
         if (data.image.uri !== null) {
             body.append('image', {
                 uri: data.image.uri,
@@ -320,8 +316,9 @@ export default class Puzzling extends Component {
         } else {
             body.append('image', null)
         }
-        console.log(body)
-        if (data.username !== null || data.image.uri !== null) {
+        console.log('POST    00000000000000000000000000   ', body)
+        if (data.username !== '' || data.image.uri !== null) {
+            console.log('it is not null and run!!!!!!!!')
             fetch(serverConn.serverUri, {
                 method: 'POST',
                 header: {
@@ -330,8 +327,9 @@ export default class Puzzling extends Component {
                 },
                 body: body
             })
-            .then((response) => console.log(response))
+            .then((response) => response.json())
             .then(responseData => {
+                console.log(responseData)
                 this.setItems(imageUri)
             })
             .catch((err) => {
@@ -342,10 +340,8 @@ export default class Puzzling extends Component {
         }
     }
     setItems = async(imageUri) => {
-        if (imageUri) {
-            await AsyncStorage.setItem('username', this.state.username)
-            await AsyncStorage.setItem('myIcon', imageUri)
-        }
+        await AsyncStorage.setItem('username', this.state.username)
+        await AsyncStorage.setItem('myIcon', imageUri)
     }
     imageIsChanged = () => {
         this.setState({

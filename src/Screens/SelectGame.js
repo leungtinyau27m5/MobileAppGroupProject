@@ -47,10 +47,12 @@ export default class SelectGame extends Component {
         this.props.navigation.navigate(route)
         return true
     }
-    handleAppStateChange = (nextAppState) => {
+    handleAppStateChange = async(nextAppState) => {
         if (nextAppState === 'active') {
             if (this.state.userPreferences.EnableBackgroundMusic == '0') return
-            music.bgMusic.setVolume(this.state.userPreferences.SoundVolume)
+            let SoundVolume = await AsyncStorage.getItem('SoundVolume')
+            music.bgMusic.setVolume(parseFloat(SoundVolume))
+            music.bgMusic.setNumberOfLoops(-1);
             music.bgMusic.play()
         } else {
             music.bgMusic.stop()
@@ -80,6 +82,7 @@ export default class SelectGame extends Component {
         }, () => {
             if (EnableBackgroundMusic == '0') return
             music.bgMusic.setVolume(parseFloat(SoundVolume))
+            music.bgMusic.setNumberOfLoops(-1);
             music.bgMusic.play()
         })
     }
