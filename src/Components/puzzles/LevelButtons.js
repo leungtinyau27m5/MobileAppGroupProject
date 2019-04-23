@@ -7,7 +7,7 @@ import {
     Text,
     StyleSheet
 } from 'react-native'
-
+//allow user to select puzzle game level
 export default class LevelButton extends Component {
     constructor(props) {
         super()

@@ -75,7 +75,7 @@ export default class Home extends Component {
                 AsyncStorage.setItem('phoneNumber', DeviceInfo.getPhoneNumber())
                 this.setState({ phoneNumber: DeviceInfo.getPhoneNumber()})
             } else {
-                ToastAndroid.show('Permission is not granted', ToastAndroid.SHORT)
+                ToastAndroid.show('Phone Number is not granted', ToastAndroid.SHORT)
             }
         } catch (err) {
             console.log('byebye')
@@ -251,7 +251,6 @@ export default class Home extends Component {
                                 <Text style={[styles.buttonText]}>
                                     Start !
                                 </Text>
-                                <Text>{DeviceInfo.getPhoneNumber()}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.touchableButton,styles.settingButton, {}]}

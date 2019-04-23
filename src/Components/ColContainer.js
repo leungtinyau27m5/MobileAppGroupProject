@@ -10,7 +10,7 @@ import {
 } from 'react-native-easy-grid'
 
 import { Items } from './Items'
-
+//testing only, not in use finally
 export class ColContainer extends Component {
     render() {
         return (

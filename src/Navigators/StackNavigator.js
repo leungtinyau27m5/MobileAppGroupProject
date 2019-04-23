@@ -66,12 +66,12 @@ export default class MyStackNavigator extends Component {
         const screenProps = {
             androidBackHandler: this.onBackButtonPressAndroid
         }
-        const navigationPersistenceKey = __DEV__ ? "NavigationStateDEV" : null;
+        const navigationPersistenceKey = __DEV__ ? "NavigationStateDEV" : null; //for development use
         return (
             <Stacks 
                 navigation={ navigation } 
                 screenProps={ screenProps }
-                persistenceKey={navigationPersistenceKey}
+                persistenceKey={navigationPersistenceKey} //handle back button press for routing
                 renderLoadingExperimental={() => <ActivityIndicator />}
             />
         )

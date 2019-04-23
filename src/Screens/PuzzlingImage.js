@@ -12,7 +12,7 @@ import {
 } from 'react-native'
 import ImagePicker from 'react-native-image-picker'
 import ImageCropPicker from 'react-native-image-crop-picker'
-
+//not in used!!!!!!!!!!!!!! puzzle image game mode
 const options = {
     title: 'select avatar',
     customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],

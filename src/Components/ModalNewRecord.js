@@ -12,7 +12,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import ImagePicker from 'react-native-image-picker'
 import ImageCropPicker from 'react-native-image-crop-picker'
-
+//view options in image picker
 const options = {
     title: 'select avatar',
     storageOptions: {
@@ -20,6 +20,7 @@ const options = {
         path: 'images',
     },
 }
+//render records in the highscroe view
 export default class ModalNewRecord extends Component {
     constructor(props) {
         super()
@@ -30,7 +31,7 @@ export default class ModalNewRecord extends Component {
         }
         this._getIcon()
     }
-    _getIcon = async() => {
+    _getIcon = async() => { //get the icon which stored in the local storage already
         const imageUri = await AsyncStorage.getItem('myIcon')
         if (imageUri !== null) {
             this.setState({
@@ -41,7 +42,7 @@ export default class ModalNewRecord extends Component {
         } 
     }
     onPresSelectImage = () => {
-        ImagePicker.showImagePicker(options, (response) => {
+        ImagePicker.showImagePicker(options, (response) => { //picker is closed or stopped
             if(response.didCancel) {
                 ToastAndroid.show('Image picker is closed', ToastAndroid.SHORT)
             } else if(response.error) {
@@ -52,7 +53,7 @@ export default class ModalNewRecord extends Component {
             }
         })
     }
-    cropImaged = (source) => {
+    cropImaged = (source) => { //crop the image after pick up
         //console.log(source)
         ImageCropPicker.openCropper({
             path: source.uri,

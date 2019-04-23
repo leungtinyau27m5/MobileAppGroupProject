@@ -88,7 +88,18 @@ export default class ChoosePuzzle extends Component {
                             borderRadius: 25,
                         }}
                         animationIn='jello'
-                        isVisible={this.state.imageSelectModalVisible}>
+                        isVisible={this.state.imageSelectModalVisible}
+                        onBackButtonPress={() => {
+                            this.setState({
+                                imageSelectModalVisible: false
+                            })
+                        }}    
+                        onBackdropPress={() => {
+                            this.setState({
+                                imageSelectModalVisible: false
+                            })
+                        }}
+                    >
                         <View 
                             style={{ 
                                 backgroundColor: '#4285F4', 
@@ -111,7 +122,18 @@ export default class ChoosePuzzle extends Component {
                             borderRadius: 25
                         }}
                         animationIn='jello'
-                        isVisible={this.state.numberLevelModalVisible}>
+                        isVisible={this.state.numberLevelModalVisible}
+                        onBackButtonPress={() => {
+                            this.setState({
+                                numberLevelModalVisible: false
+                            })
+                        }}
+                        onBackdropPress={() => {
+                            this.setState({
+                                numberLevelModalVisible: false
+                            })
+                        }}
+                    >
                         <View 
                             style={{ 
                                 backgroundColor: '#E4F7F6', 

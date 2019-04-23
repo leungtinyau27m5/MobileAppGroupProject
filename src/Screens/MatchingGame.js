@@ -4,7 +4,7 @@ import {
     Text,
     Button
 } from 'react-native'
-
+//MatchingGame is not in use!!!!!!!!!!!!!
 export default class PuzzleGame extends Component {
     render() {
         return (

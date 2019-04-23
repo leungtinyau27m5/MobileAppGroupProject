@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native'
-
+//select games view
 export default class GameSelection extends Component {
     constructor(props) {
         super()

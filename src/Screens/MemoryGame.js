@@ -4,7 +4,7 @@ import { Text } from 'react-native'
 
 import Prepare from './Prepare'
 import Search from './Search'
-
+//memory game 
 const level = 
     {
         relax: { //1-5
@@ -63,10 +63,10 @@ const level =
             Rows: 7,
             Cols: 4
         }
-    }
+    }//game level config
 
 
-const SwitchScreens = createSwitchNavigator({
+const SwitchScreens = createSwitchNavigator({ //routing handler
     Prepare:{
         screen: Prepare
     },
@@ -80,7 +80,7 @@ const SwitchScreens = createSwitchNavigator({
 
 let target = []
 let lv = null
-export default class Game extends Component {
+export default class Game extends Component { //memory game view
     static router = SwitchScreens.router
     constructor(props) {
         super()
@@ -103,15 +103,15 @@ export default class Game extends Component {
     componentDidUpdate(){
 
     }
-    setTotalTimePlayed = (count) => {
+    setTotalTimePlayed = (count) => { //not in used!!!!, couting how much time have been played in a game
         this.setState((prevState) => ({
             totalTimePlayed: prevState.totalTimePlayed + count
         }))
     }
-    showPlayedTime = () => {
+    showPlayedTime = () => { //not in used!!!!!
         return this.state.level
     }
-    nextGame = () => {
+    nextGame = () => { //upgrade level if player answer all correct answers
         let currentLevel = this.state.level
         if (currentLevel + 1 > 100) return
         currentLevel = currentLevel + 1
@@ -156,7 +156,7 @@ export default class Game extends Component {
             screenProps: screenProps
         })
     }
-    handleClick = (isRight) => {
+    handleClick = (isRight) => { //checking right
         if (!isRight) return
         
         let right = this.state.numberOfRight
@@ -165,15 +165,15 @@ export default class Game extends Component {
             numberOfRight: right
         }, () => this.checkDone())
     }
-    checkDone = () => {
+    checkDone = () => { //check if all are answered
         if (this.state.numberOfRight == this.state.requiredRight) {
             this.nextGame()
         }
     }
-    randomNumber = (max) => {
+    randomNumber = (max) => { //always return int random number
         return Math.floor((Math.random() * max))
     }
-    generateItemProfile = (n, isColor, isTurning, isText) => {
+    generateItemProfile = (n, isColor, isTurning, isText) => { 
         let items = []
         for (let i = 0; i < n; i++) {
             let color = null, shape = null, isReverse = null, text = null
@@ -191,7 +191,7 @@ export default class Game extends Component {
         }
         return items
     }
-    initialGame = () => {
+    initialGame = () => { //game initialization
         lv = level.relax
         const cn = lv.number
         const isColor = lv.color, isTurning = lv.turning, isText = lv.text

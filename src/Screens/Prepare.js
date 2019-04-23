@@ -14,40 +14,40 @@ import { Col, Row, Grid } from 'react-native-easy-grid'
 
 import { ItemContainer } from '../Components/ItemContainer'
 import { TimerCountDown } from '../Components/Timer'
-
+//the sceen allows player to remember the items
 export default class Prepare extends Component {
     constructor(props) {
         super()
     }
-    componentDidMount() {
+    componentDidMount() { //adding back button handler
         AppState.addEventListener('change', this.props.screenProps.handleAppStateChange);
         //BackHandler.addEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
         BackHandler.addEventListener('hardwareBackPress', this.toastWarningMsg)
     }
-    componentWillUnmount() {
+    componentWillUnmount() { //unmount the back button listener to prevent collision and illegal state update in react-native
         AppState.removeEventListener('change', this.props.screenProps.handleAppStateChange);
         //BackHandler.removeEventListener('hardwareBackPress', () => this.backButtonPress('SelectGame'))
         BackHandler.removeEventListener('hardwareBackPress', this.toastWarningMsg)
         BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
         BackgroundTimer.clearTimeout(this.doubleBack)
     }
-    toastWarningMsg = () => {
+    toastWarningMsg = () => { //toast warning msg if player want to leave the game
         ToastAndroid.show('Double press to forgive the game!', ToastAndroid.SHORT)
         BackHandler.addEventListener('hardwareBackPress', this.doubleBackButtonPress)
-        this.doubleBack = BackgroundTimer.setTimeout(() => {
+        this.doubleBack = BackgroundTimer.setTimeout(() => { //adding time out event for listening second back button click to exit app
             BackHandler.removeEventListener('hardwareBackPress', this.doubleBackButtonPress)
         }, 2000)
         return true
     }
-    doubleBackButtonPress = () => {
+    doubleBackButtonPress = () => { //player double press back button
         this.props.navigation.navigate('SelectGame')
         return true
     }
-    backButtonPress = (route) => {
+    backButtonPress = (route) => { //not in used 
         this.props.navigation.navigate(route)
         return true
     }
-    navigateToSearchScene = () => {
+    navigateToSearchScene = () => { //go to search scene to start the searching
         let targets = this.props.screenProps.target
         let settings = this.props.screenProps.levelSettings
         let rows = settings.Rows

@@ -53,7 +53,7 @@ const colors = [
     "#808000",  //Olive
     "#FFA500",  //orange
 ]
-
+//rendering an item in the memory view 
 export class Items extends Component {
     constructor(props) {
         super()

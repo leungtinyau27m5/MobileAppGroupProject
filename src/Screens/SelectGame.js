@@ -62,6 +62,7 @@ export default class SelectGame extends Component {
         let SoundVolume = await AsyncStorage.getItem('SoundVolume')
         let EnableBackgroundMusic = await AsyncStorage.getItem('EnableBackgroundMusic')
         let PlayHomeAnima = await AsyncStorage.getItem('PlayHomeAnima')
+        if (SoundVolume < 0) SoundVolume = 0.2
         if (SoundVolume == null) {
             SoundVolume = 0.8
         } else {

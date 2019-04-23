@@ -29,7 +29,7 @@ import SelectGame from '../Screens/SelectGame'
 import MemoryGame from '../Screens/MemoryGame'
 import PuzzleGame from  '../Screens/PuzzleGame'
 import MatchingGame from '../Screens/MatchingGame'
-
+//game swtich navigator (memory game puzzle game are available!!! matching game is not created yet!!!!)
 const Stacks = createSwitchNavigator({
     SelectGame: {
         screen: SelectGame,

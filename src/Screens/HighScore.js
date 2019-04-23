@@ -16,7 +16,8 @@ import { serverConn } from '../server/config'
 import DeviceInfo from 'react-native-device-info'
 import Contacts from 'react-native-contacts'
 
-class HeadBoard extends Component {
+//for highscroe view
+class HeadBoard extends Component { //the header board for avatar 
     constructor(props) {
         super()
         this.state = {
@@ -184,7 +185,7 @@ class HeadBoard extends Component {
     }
 }
 //F1F4F6
-class UserRecords extends Component {
+class UserRecords extends Component { //show other players record
     render() {
         return (
             <View style={{
@@ -219,7 +220,7 @@ class UserRecords extends Component {
         )
     }
 }
-export default class HighScore extends Component {
+export default class HighScore extends Component { //the whole page layout design
     constructor(props) {
         super()
         this.state = {
@@ -379,7 +380,7 @@ export default class HighScore extends Component {
             //console.error('byeby', this.state.data)
         })*/
     }
-    handleOnClickEvent = (g, p, l) => {
+    handleOnClickEvent = (g, p, l) => { //handling the tab on click
         const screenWidth = Dimensions.get('window').width
         let num = {
             x: 0,
@@ -408,8 +409,8 @@ export default class HighScore extends Component {
             }
         })
     }
-    scrollingEvent = (event) => {
-        const num = Math.floor(event.nativeEvent.contentOffset.x)
+    scrollingEvent = (event) => { //handling the horizontal scrool
+        const num = Math.floor(event.nativeEvent.contentOffset.x) //getting the offset in x to detect which page is in used
         //console.log(num)
         const screenWidth = Dimensions.get('window').width
         if (num == 0) {
@@ -488,7 +489,7 @@ export default class HighScore extends Component {
     appendDataInTabsPage = () => {
         
     }
-    _renderRecord = () => {
+    _renderRecord = () => { //rendering records after data is gotten from server
         let recordBoard = []
         const width = Dimensions.get('window').width
         if (this.isRendered) return
@@ -523,7 +524,7 @@ export default class HighScore extends Component {
                     break;
                 }
                 //console.log('check is it rid ', data)
-                if (typeof(data) !== 'undefined' && data !== null && data !== '') {
+                if (typeof(data) !== 'undefined' && data !== null && data !== '') { //prevent illegal data type
                     if (data.length !== 0) {
                         for (let i = 0; i < data.length; i++) {
                             if (data[i] !== null && data[i].length !== 0) {

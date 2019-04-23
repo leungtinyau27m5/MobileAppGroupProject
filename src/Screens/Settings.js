@@ -19,9 +19,9 @@ import Sound from 'react-native-sound'
 Sound.setCategory('Playback')
 
 const music = {
-    popSound: new Sound('pop.mp3', Sound.MAIN_BUNDLE)
+    popSound: new Sound('pop.mp3', Sound.MAIN_BUNDLE) //import background music in bundle
 }
-
+//user preferences
 export default class Settings extends Component {
     constructor(props) {
         super()
@@ -38,9 +38,9 @@ export default class Settings extends Component {
     componentWillUnmount() {
         BackHandler.addEventListener('hardwareBackPress', () => this.props.screenProps.androidBackHandler('Home'))
     }
-    _initialize = async() => {
+    _initialize = async() => { //getting user previous preferences
         let soundValue = await AsyncStorage.getItem('SoundVolume')  
-        if (soundValue == null) {
+        if (soundValue == null) { //null means users did not setup their preferences yet, then giving them default setting
             await AsyncStorage.setItem('SoundVolume', 0.8.toString())
             this.setState({
                 SoundVolume: 0.8
@@ -75,7 +75,7 @@ export default class Settings extends Component {
             })
         }
     }
-    _changeAsyncStorage = async (target, action) => {
+    _changeAsyncStorage = async (target, action) => { //update user preferences in local storage
         action = action || null
         try {
             const value = await AsyncStorage.getItem(target)

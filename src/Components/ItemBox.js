@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 
 import { Items } from './Items'
-
+//the box for item in memory view
 export class ItemBox extends Component {
     constructor(props) {
         super()

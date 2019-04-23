@@ -10,6 +10,7 @@ import {
 import * as Animatable from 'react-native-animatable'
 import BackgroundTimer from 'react-native-background-timer'
 
+//the timer for counting down in memory screen
 export class TimerCountDown extends Component {
     constructor(props) {
         super()

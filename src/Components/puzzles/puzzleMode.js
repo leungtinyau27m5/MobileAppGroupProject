@@ -4,7 +4,7 @@ import {
     TouchableOpacity,
     Text,
 } from 'react-native'
-
+//allow user to choose the puzzle game mode, (image model is not created!!!)
 export default class PuzzleMode extends Component {
     constructor(props) {
         super()

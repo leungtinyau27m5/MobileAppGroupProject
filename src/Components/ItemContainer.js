@@ -7,7 +7,7 @@ import {
 } from 'react-native'
 
 import { Items } from './Items'
-
+//the container for the item in memory view
 export class ItemContainer extends Component {
     constructor(props) {
         super()

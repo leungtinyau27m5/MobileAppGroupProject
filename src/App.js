@@ -10,9 +10,9 @@ import {
 
 import {
     createAppContainer
-} from 'react-navigation'
+} from 'react-navigation' //new routing container
 
-import MyStackNavigator from './Navigators/StackNavigator'
+import MyStackNavigator from './Navigators/StackNavigator' 
 
 const AppContainer = createAppContainer(MyStackNavigator);
 

@@ -195,12 +195,12 @@ export default class Search extends Component {
                 }
             )
             if (granted == PermissionsAndroid.RESULTS.GRANTED) {
-                console.log('Permission is granted')
+                console.log('Phone Number is granted')
             } else {
-                ToastAndroid.show('Permission is not granted', ToastAndroid.SHORT)
+                ToastAndroid.show('Phone Number is not granted', ToastAndroid.SHORT)
             }
         } catch (err) {
-            ToastAndroid.show('Cant grant permission', ToastAndroid.SHORT)
+            ToastAndroid.show('Cant grant Phone Number', ToastAndroid.SHORT)
         }
     }
     registerPhoneNumber = async(phoneNumber, imageUri) => {
