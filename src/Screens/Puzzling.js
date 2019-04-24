@@ -128,7 +128,7 @@ export default class Puzzling extends Component {
         return true
     }
     doubleBackButtonPress = () => {
-        this.props.navigation.navigate('SelectGame')
+        this.props.navigation.navigate('ChoosePuzzle')
         return true
     }
     backToSelectScene() {
@@ -155,7 +155,8 @@ export default class Puzzling extends Component {
         await AsyncStorage.setItem(loadTarget, JSON.stringify(oldGame))
     }
     cleanTheCache = async() => {
-        await AsyncStorage.removeItem('oldGame')
+        let loadTarget = this.state.level == 'easy' ? 'oldGame' : this.state.level == 'normal' ? 'oldGameNormal' : 'oldGameHard'
+        await AsyncStorage.removeItem(loadTarget)
         ToastAndroid.show('Cache and Game Record is Clean', ToastAndroid.SHORT)
         this.props.navigation.navigate('ChoosePuzzle')
     }
