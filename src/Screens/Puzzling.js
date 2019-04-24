@@ -16,6 +16,7 @@ import {
     PermissionsAndroid
 } from 'react-native'
 import Modal from 'react-native-modal'
+import Spinner from 'react-native-loading-spinner-overlay'
 import BackgroundTimer from 'react-native-background-timer'
 import { serverConn } from '../server/config'
 import ModalNewRecord from '../Components/ModalNewRecord'
@@ -102,7 +103,8 @@ export default class Puzzling extends Component {
             isRearranged: false,
             register: null,
             username: 'your name',
-            imageChanged: false
+            imageChanged: false,
+            isLoading: false
         }
         this._getName()
     }
@@ -264,6 +266,9 @@ export default class Puzzling extends Component {
         }
     }
     uploadMyGameRecord = async(imageUri) => {
+        this.setState({
+            isLoading: true
+        })
         let rid = await AsyncStorage.getItem('rid')
         let phoneNumber
         if (rid == null) {
@@ -273,11 +278,15 @@ export default class Puzzling extends Component {
         } else {
             this.updateMyPersonalData(rid, imageUri)
             this.setState({ 
-                register: rid 
+                register: rid,
+                isLoading: false 
             }, () => this.fetchData(rid))
         }
     }
     updateMyPersonalData = async(rid, imageUri) => {
+        this.setState({
+            isLoading: true
+        })
         const phoneNumber = DeviceInfo.getPhoneNumber()
         //const OriginImg = await AsyncStorage.getItem('myIcon')
         const OriginName = await AsyncStorage.getItem('username')
@@ -332,6 +341,9 @@ export default class Puzzling extends Component {
             .then(responseData => {
                 console.log(responseData)
                 this.setItems(imageUri)
+                this.setState({
+                    isLoading: false
+                })
             })
             .catch((err) => {
                 ToastAndroid.show('Register Request Failed', ToastAndroid.LONG)
@@ -529,6 +541,12 @@ export default class Puzzling extends Component {
     render() {
         return (
         <SafeAreaView style={{justifyContent: 'center'}}>
+            <Spinner
+                visible={this.state.isLoading}
+                textContent={'Loading .... '}
+                textStyle={{fontSize: 20, color: '#333'}}
+                color={'#333'}
+            />
             <View style={{width: '95%', padding: 5, borderColor: '#000', marginLeft: 'auto', marginRight: 'auto', height: '90%', justifyContent: 'center'}}>
                 <View style={{flex: 2, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{fontSize: 22}}>Steps: {this.state.steps}</Text>

@@ -18,6 +18,7 @@ import {
 import Modal from 'react-native-modal'
 import BackgroundTimer from 'react-native-background-timer'
 
+import Spinner from 'react-native-loading-spinner-overlay'
 import { serverConn } from '../server/config'
 import ModalNewRecord from '../Components/ModalNewRecord'
 import DeviceInfo from 'react-native-device-info'
@@ -36,7 +37,8 @@ export default class Search extends Component {
             username: null,
             imageChanged: false,
             register: null,
-            phoneNumber: null
+            phoneNumber: null,
+            isLoading: false
         }
         this._renderRows = this._renderRows.bind(this)
         //this.getPhoneNumber()
@@ -342,6 +344,9 @@ export default class Search extends Component {
         await AsyncStorage.setItem('myIcon', imageUri)
     }
     fetchData = async(rid) => {
+        this.setState({
+            isLoading: true
+        })
         const data = {
             request: 'updateGameRecord',
             game: 'memory',
@@ -360,6 +365,9 @@ export default class Search extends Component {
         .then((response) => response.json())
         .then(responseData => {
             console.log(responseData)
+            this.setState({
+                isLoading: false
+            })
         })
         .catch((error) => {
             ToastAndroid.show('Fetch Request Failed', ToastAndroid.LONG)
@@ -367,7 +375,8 @@ export default class Search extends Component {
         })
         .done(() => {
             this.setState({
-                modalGameOver: false
+                modalGameOver: false,
+                isLoading: false
             }, () => {
                 this.props.navigation.navigate('SelectGame')
             })
@@ -376,6 +385,12 @@ export default class Search extends Component {
     render() {
         return(
             <SafeAreaView>
+                <Spinner
+                    visible={this.state.isLoading}
+                    textContent={'Loading .... '}
+                    textStyle={{fontSize: 20, color: '#333'}}
+                    color={'#333'}
+                />
                 <Modal
                     isVisible={this.state.modalGameOver}
                     animationIn='flash'
