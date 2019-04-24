@@ -98,7 +98,6 @@ export default class Puzzling extends Component {
                 col: c.boardArray[0].length - 1
             },
             isWin: false,
-            //isWin: true,
             steps: 0,
             isRearranged: false,
             register: null,
@@ -181,7 +180,6 @@ export default class Puzzling extends Component {
         oldGame.isWin = true
         oldGame.steps = this.state.steps
         await AsyncStorage.setItem(loadTarget, JSON.stringify(oldGame))
-        //this.uploadMyGameRecord()
         this.setState({
             isWin: true
         })
@@ -236,17 +234,9 @@ export default class Puzzling extends Component {
                 'Accept': 'application/json',
                 'Content-Type': 'multipart/form-data',
             },
-            /*
-            header: {
-                //'Accept': 'application/json',
-                //'Content-Type': 'application/json'
-                'Content-Type': 'multipart/form-data',
-            },*/
-            //body: JSON.stringify(data)
             body: body
         })
         .then((response) => response.json())
-        //.then((response) => console.log(response))
         .then(responseData => {
             this._storeRid(responseData)
         })
@@ -288,7 +278,6 @@ export default class Puzzling extends Component {
             isLoading: true
         })
         const phoneNumber = DeviceInfo.getPhoneNumber()
-        //const OriginImg = await AsyncStorage.getItem('myIcon')
         const OriginName = await AsyncStorage.getItem('username')
         const uriPart = imageUri.split('.')
         const fileExtension = uriPart[uriPart.length - 1]
